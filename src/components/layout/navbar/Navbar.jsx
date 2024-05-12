@@ -10,7 +10,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
-
+import Button from "@mui/material/Button";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { useContext, useState } from "react";
@@ -58,20 +58,19 @@ function Navbar(props) {
           );
         })}
 
-{
-  user.rol === rolAdmin &&
-        <Link to={"/dashboard"}>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <DashboardIcon sx={{ color: "whitesmoke" }} />
-              </ListItemIcon>
-              <ListItemText primary={"Dashboard"} sx={{ color: "whitesmoke" }} />
-            </ListItemButton>
-          </ListItem>
-        </Link>
+        {user.rol === rolAdmin &&
+          <Link to={"/dashboard"}>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <DashboardIcon sx={{ color: "whitesmoke" }} />
+                </ListItemIcon>
+                <ListItemText primary={"Dashboard"} sx={{ color: "whitesmoke" }} />
+              </ListItemButton>
+            </ListItem>
+          </Link>
+        }
 
-}
         <ListItem disablePadding>
           <ListItemButton onClick={handleLogout}>
             <ListItemIcon>
@@ -93,29 +92,7 @@ function Navbar(props) {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          width: "100%",
-        }}
-      >
-        <Toolbar
-          sx={{ gap: "20px", display: "flex", justifyContent: "space-between" }}
-        >
-          <Link to="/" style={{ color: "whitesmoke" }}>
-            CC Ramallo
-          </Link>
-          <IconButton
-            color="secondary.primary"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-          >
-            <MenuIcon color="secondary.primary" />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Box component="nav" aria-label="mailbox folders">
+      <Box component="nav" sx={{ flexGrow: 1 }}>
         <Drawer
           container={container}
           variant="temporary"
@@ -137,18 +114,13 @@ function Navbar(props) {
           {drawer}
         </Drawer>
       </Box>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          py: 4,
-          width: "100%",
-          minHeight: "100vh",
-          px: 2,
-        }}
-      >
+      <Box component="main" sx={{ flexGrow: 1, py: 4 }}>
+        <AppBar position="fixed" sx={{ width: "100%", right: 0 }}>
+          <Toolbar sx={{ justifyContent: "flex-center" }}>
+            <Button color="inherit" onClick={handleDrawerToggle}>Presione aquí</Button>
+          </Toolbar>
+        </AppBar>
         <Toolbar />
-
         <Outlet />
       </Box>
     </Box>
