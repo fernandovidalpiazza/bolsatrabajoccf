@@ -8,6 +8,7 @@ const CvForm = ({
   setIsChange,
   cvSelected,
   setCvSelected,
+  updateDashboard
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [newCv, setNewCv] = useState({
@@ -15,8 +16,10 @@ const CvForm = ({
     Apellido: "",
     Edad: "",
     Profesion: "",
+    Ciudad:"",
     Foto: "",
     cv: "",
+
   });
   const [imageFile, setImageFile] = useState(null);
   const [cvFile, setCvFile] = useState(null);
@@ -53,8 +56,9 @@ const CvForm = ({
 
     try {
       await addDoc(cvCollection, newCv);
-      setIsChange(true);
+      setIsChange(prev => !prev); // Aquí indicamos que se ha producido un cambio
       handleClose();
+      updateDashboard();
     } catch (error) {
       console.error("Error adding document: ", error);
     }
@@ -97,6 +101,14 @@ const CvForm = ({
           label="Profesión"
           name="Profesion"
           value={newCv.Profesion}
+          onChange={handleChange}
+        />
+
+        <TextField
+          variant="outlined"
+          label="Ciudad"
+          name="Ciudad"
+          value={newCv.Ciudad}
           onChange={handleChange}
         />
         <TextField
