@@ -3,7 +3,7 @@ import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel,
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { signUp, db } from "../../../firebaseConfig";
-import { setDoc, doc } from "firebase/firestore";
+import { setDoc, doc, getDoc } from "firebase/firestore";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
@@ -27,6 +27,19 @@ const Register = () => {
     }),
     onSubmit: async (values) => {
       try {
+        // Verificar si el usuario ya está registrado
+        const docSnap = await getDoc(doc(db, "users", values.email));
+        if (docSnap.exists()) {
+          // Mostrar Sweet Alert de error si el usuario ya está registrado
+          Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: '¡Usted ya está registrado!',
+          });
+          return; // Salir de la función onSubmit si el usuario ya está registrado
+        }
+
+        // Si el usuario no está registrado, proceder con el registro
         let res = await signUp(values);
         if (res.user.uid) {
           await setDoc(doc(db, "users", res.user.uid), { rol: "user" });
@@ -36,16 +49,29 @@ const Register = () => {
           icon: 'success',
           title: '¡Registro exitoso!',
           text: 'Usted se ha registrado correctamente.',
-          timer: 3000, // Duración en milisegundos (3 segundos)
+        timer: 2000, // Tiempo de espera en milisegundos
           timerProgressBar: true, // Mostrar barra de progreso
           
-          
-         
-        }).then(() => {
-          navigate("/login");
+            }).then(() => {
+            navigate("/login");
         });
       } catch (error) {
-        console.error(error);
+        // Manejar específicamente el caso de correo electrónico en uso
+        if (error.code === 'auth/email-already-in-use') {
+          Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: '¡No pudistes regitrarte el correo ya esta en uso.. intenta con otro correo o inicia secion !',
+          });
+        } else {
+          // Mostrar Sweet Alert de error general si hay otros errores
+          Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: '¡Ha ocurrido un error al registrar!',
+          });
+          console.error(error);
+        }
       }
     }
   });
