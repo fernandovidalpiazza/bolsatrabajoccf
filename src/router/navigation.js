@@ -17,5 +17,10 @@ export const menuItems = [
         title: "CV",
         Icon: StoreIcon
     },
-   
+    {
+        id: "Cargar Cv",
+        path: "/cvc",
+        title: "CVC",
+        Icon: StoreIcon
+    },
 ]

@@ -1,20 +1,16 @@
 import { initializeApp } from "firebase/app";
-
-import {
-  signInWithEmailAndPassword,
-  getAuth,
-  signOut,
-  signInWithPopup,
-  GoogleAuthProvider,
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  createUserWithEmailAndPassword, 
+  sendPasswordResetEmail 
 } from "firebase/auth";
-
-import {getFirestore} from "firebase/firestore"
-
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-import { v4 } from "uuid";
-
+import { getFirestore } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 as uuidv4 } from "uuid";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -30,56 +26,75 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
-export const db = getFirestore(app)
-const storage = getStorage(app)
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+export { auth, db, storage };
 
 // LOS SERVICIOS
 
-// auth
+// Auth
 
 // Login
-
 export const onSigIn = async ({ email, password }) => {
   try {
     const res = await signInWithEmailAndPassword(auth, email, password);
     return res;
   } catch (error) {
-    console.log(error);
+    console.error("Error during sign in:", error);
+    throw error;
   }
 };
-// logout
 
+// Logout
 export const logout = () => {
   signOut(auth);
 };
-// login con google
 
-let googleProvider = new GoogleAuthProvider();
-
+// Login con Google
+const googleProvider = new GoogleAuthProvider();
 export const loginGoogle = async () => {
-  const res = await signInWithPopup(auth, googleProvider);
-  return res;
+  try {
+    const res = await signInWithPopup(auth, googleProvider);
+    return res;
+  } catch (error) {
+    console.error("Error during Google sign in:", error);
+    throw error;
+  }
 };
 
-// registro
-
-export const signUp = async ({email, password}) => {
-    let res = await createUserWithEmailAndPassword(auth, email, password)
-    return res
+// Registro
+export const signUp = async ({ email, password }) => {
+  try {
+    const res = await createUserWithEmailAndPassword(auth, email, password);
+    return res;
+  } catch (error) {
+    console.error("Error during sign up:", error);
+    throw error;
+  }
 };
 
-// olvide la contraseña
+// Olvidé la contraseña
+export const forgotPassword = async (email) => {
+  try {
+    const res = await sendPasswordResetEmail(auth, email);
+    return res;
+  } catch (error) {
+    console.error("Error during password reset:", error);
+    throw error;
+  }
+};
 
-export const forgotPassword = async (email)=>{
-    let res = await sendPasswordResetEmail(auth, email)
-    return res    
-}
+// Storage
 
-// storage
-
-export const uploadFile = async (file)=>{
-  const storageRef = ref( storage, v4() )
-  await uploadBytes(storageRef, file)
-  let url = await getDownloadURL(storageRef)
-  return url
-}
+export const uploadFile = async (file) => {
+  try {
+    const storageRef = ref(storage, uuidv4());
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    return url;
+  } catch (error) {
+    console.error("Error during file upload:", error);
+    throw error;
+  }
+};

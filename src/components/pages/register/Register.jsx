@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -56,7 +56,7 @@ const Register = () => {
             navigate("/login");
         });
       } catch (error) {
-        // Manejar específicamente el caso de correo electrónico en uso
+        // Manejar específicamente el casofdsa de correo electrónico en uso
         if (error.code === 'auth/email-already-in-use') {
           Swal.fire({
             icon: 'error',

@@ -67,27 +67,24 @@ const ItemListContainer = () => {
       </Box>
       <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: "20px" }}>
         <Box sx={{ width: "50%" }}>
-        <Typography>Filtrar por profesión</Typography>
-        <Select
-  
-  
-  value={selectedProfession || ''}
-  
-  onChange={handleProfessionChange}
-  displayEmpty
-  variant="outlined"
-  sx={{ minWidth: 200 }}
->
-  <MenuItem value="">
-    Ver Todos
-  </MenuItem>
-  {professions.map((profession, index) => (
-    <MenuItem key={index} value={profession}>{profession}</MenuItem>
-  ))}
-</Select>
+          <Typography>Filtrar por profesión</Typography>
+          <Select
+            value={selectedProfession || ''}
+            onChange={handleProfessionChange}
+            displayEmpty
+            variant="outlined"
+            sx={{ minWidth: 200 }}
+          >
+            <MenuItem value="">
+              Ver Todos
+            </MenuItem>
+            {professions.map((profession, index) => (
+              <MenuItem key={index} value={profession}>{profession}</MenuItem>
+            ))}
+          </Select>
         </Box>
         <Box sx={{ width: "50%" }}>
-        <Typography>Filtrar por Ciudad</Typography>
+          <Typography>Filtrar por Ciudad</Typography>
           <Select
             value={selectedCity || ''}
             onChange={handleCityChange}
@@ -104,8 +101,8 @@ const ItemListContainer = () => {
           </Select>
         </Box>
       </Box>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: "150px", justifyContent: "left", padding: "60px" }}>
-        {cvs.map((cv) => (
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: "20px", justifyContent: "center" }}>
+        {cvs.filter(cv => cv.estado !== "pendiente").map((cv) => (
           ((selectedProfession === "" || cv.Profesion === selectedProfession) && 
            (selectedCity === "" || cv.Ciudad === selectedCity)) && (
             <Card key={cv.id} sx={{ maxWidth: 300, marginBottom: "20px" }}>
@@ -150,7 +147,6 @@ const ItemListContainer = () => {
       </Box>
     </Box>
   );
-  
 };
 
 export default ItemListContainer;
