@@ -15,9 +15,9 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { db } from "../../../firebaseConfig";
-import { deleteDoc, doc, collection, getDocs } from "firebase/firestore";
+import { deleteDoc, doc, collection, getDocs, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import ProductsForm from "./ProductsForm";
+import CvForm from "./ProductsForm";
 
 const style = {
   position: "absolute",
@@ -31,8 +31,7 @@ const style = {
   p: 4,
 };
 
-const CVList = ({ setIsChange }) => {
-  const [cvs, setCVs] = useState([]);
+const CVList = ({ cvs, setIsChange, approveCV, disapproveCV }) => {
   const [open, setOpen] = useState(false);
   const [cvSelected, setCVSelected] = useState(null);
 
@@ -109,6 +108,8 @@ const CVList = ({ setIsChange }) => {
                   <IconButton onClick={() => deleteCV(cv.id)}>
                     <DeleteForeverIcon color="primary" />
                   </IconButton>
+                  <Button onClick={() => approveCV(cv.id)}>Aprobar</Button>
+                  <Button onClick={() => disapproveCV(cv.id)}>Desaprobar</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -123,11 +124,11 @@ const CVList = ({ setIsChange }) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <ProductsForm
+          <CvForm
             handleClose={handleClose}
             setIsChange={setIsChange}
             cvSelected={cvSelected}
-            setCVSelected={setCVSelected}
+            setCvSelected={setCVSelected}
           />
         </Box>
       </Modal>

@@ -7,6 +7,8 @@ import { setDoc, doc, getDoc } from "firebase/firestore";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
+import React, { useState } from 'react';
+
 
 const Register = () => {
   const navigate = useNavigate();
