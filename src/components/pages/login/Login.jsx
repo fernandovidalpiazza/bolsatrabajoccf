@@ -62,7 +62,11 @@ const Login = () => {
         }
       } catch (error) {
         console.log(error);
-        alert('Error al iniciar sesión. Por favor, inténtelo de nuevo.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Usted no está registrado!, Verifique su contraseña su mail, o regístrese',
+        });
       }
     },
   });
@@ -76,6 +80,7 @@ const Login = () => {
       };
       handleLogin(finalyUser);
       navigate("/");
+      
     } catch (error) {
       console.log(error);
       alert('Error al iniciar sesión con Google. Por favor, inténtelo de nuevo.');

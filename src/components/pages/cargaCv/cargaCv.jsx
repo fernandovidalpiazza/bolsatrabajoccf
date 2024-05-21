@@ -1,6 +1,6 @@
 import { Button, TextField, Box } from "@mui/material";
 import { useState, useEffect } from "react";
-import { db, auth, uploadFile } from "../../../firebaseConfig"; // Asegúrate de importar auth si usas Firebase Auth
+import { db, auth, uploadFile } from "../../../firebaseConfig";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import Swal from "sweetalert2";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -14,6 +14,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     Edad: "",
     Profesion: "",
     Ciudad: "",
+    Email: "", // Nuevo campo para el correo electrónico
     Foto: "",
     cv: "",
     estado: "pendiente",
@@ -44,16 +45,16 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-        Swal.fire({
-          icon: "warning",
-          title: "CV Ya Enviado",
-          text: "Usted ya a enviado un CV .",
-          timer: 2000, // Tiempo de espera en milisegundos
-          timerProgressBar: true, // Mostrar barra de progreso
-        }).then(() => {
-            navigate("/");
-        });
-      }
+      Swal.fire({
+        icon: "warning",
+        title: "CV Ya Enviado",
+        text: "Usted ya ha enviado un CV.",
+        timer: 2000,
+        timerProgressBar: true,
+      }).then(() => {
+        navigate("/");
+      });
+    }
   };
 
   const handleImage = async () => {
@@ -90,7 +91,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
       Swal.fire({
         icon: "info",
         title: "CV Enviado",
-        text: "Tu CV está en proceso de revisión. Te enviaremos un mail cuando se acepte.",
+        text: "Tu CV está en proceso de revisión. Te enviaremos un correo electrónico cuando se acepte.",
       });
       setIsChange((prev) => !prev);
       handleClose();
@@ -119,6 +120,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         name="Nombre"
         value={newCv.Nombre}
         onChange={handleChange}
+        required // Campo requerido
         fullWidth
       />
       <TextField
@@ -127,6 +129,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         name="Apellido"
         value={newCv.Apellido}
         onChange={handleChange}
+        required // Campo requerido
         fullWidth
       />
       <TextField
@@ -135,6 +138,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         name="Edad"
         value={newCv.Edad}
         onChange={handleChange}
+        required // Campo requerido
         fullWidth
       />
       <TextField
@@ -143,6 +147,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         name="Profesion"
         value={newCv.Profesion}
         onChange={handleChange}
+        required // Campo requerido
         fullWidth
       />
       <TextField
@@ -151,6 +156,17 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         name="Ciudad"
         value={newCv.Ciudad}
         onChange={handleChange}
+        required // Campo requerido
+        fullWidth
+      />
+      <TextField
+        variant="outlined"
+        type="email"
+        label="Correo Electrónico" // Campo de correo electrónico
+        name="Email"
+        value={newCv.Email}
+        onChange={handleChange}
+        required // Campo requerido
         fullWidth
       />
       <TextField
@@ -161,6 +177,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
           shrink: true,
         }}
         helperText="Ninguna foto seleccionada"
+        required // Campo requerido
         fullWidth
       />
       {imageFile && (
@@ -176,6 +193,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
           shrink: true,
         }}
         helperText="Ningún CV seleccionado"
+        required // Campo requerido
         fullWidth
       />
       {cvFile && (
