@@ -5,6 +5,8 @@ import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import Swal from "sweetalert2";
 import { Navigate, useNavigate } from "react-router-dom";
 
+import LinearProgress from '@mui/material/LinearProgress';
+
 const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState(null);
@@ -24,7 +26,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
   const [cvFile, setCvFile] = useState(null);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isCvLoaded, setIsCvLoaded] = useState(false);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -92,10 +94,13 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         icon: "info",
         title: "CV Enviado",
         text: "Tu CV está en proceso de revisión. Te enviaremos un correo electrónico cuando se acepte.",
+      }).then(() => {
+        navigate("/");
+
+        setIsChange((prev) => !prev);
+        handleClose();
+        updateDashboard();
       });
-      setIsChange((prev) => !prev);
-      handleClose();
-      updateDashboard();
     } catch (error) {
       console.error("Error adding document: ", error);
     }
@@ -180,11 +185,19 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         required // Campo requerido
         fullWidth
       />
-      {imageFile && (
-        <Button onClick={handleImage} type="button">
-          Cargar foto
-        </Button>
-      )}
+     {imageFile && (
+  <Box sx={{ width: '100%' }}>
+  <Button onClick={handleImage} type="button" disabled={isLoading || isImageLoaded}>
+    Cargar foto
+  </Button>
+  {isLoading && <LinearProgress />}
+  {isImageLoaded && <p>Cargado con éxito</p>}
+</Box>
+)}
+
+
+
+
       <TextField
         type="file"
         label="CV"
@@ -197,15 +210,25 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         fullWidth
       />
       {cvFile && (
-        <Button onClick={handleCv} type="button">
-          Cargar CV
-        </Button>
-      )}
-      {!isLoading && isImageLoaded && isCvLoaded && (
-        <Button variant="contained" type="submit">
-          Crear
-        </Button>
-      )}
+       <Box sx={{ width: '100%' }}>
+      <Button onClick={handleCv} type="button" disabled={isLoading || isCvLoaded}>
+        Cargar CV
+      </Button>
+      {isLoading && <LinearProgress />}
+      {isCvLoaded && <p>Cargado con éxito</p>}
+
+
+    </Box>
+  )}
+      
+
+      
+    {!isLoading && isImageLoaded && isCvLoaded && (
+  <Button variant="contained" type="submit">
+    Crear
+  </Button>
+)}
+   
     </Box>
   );
 };
