@@ -94,37 +94,25 @@ const Login = () => {
         width: "100%",
         minHeight: "100vh",
         display: "flex",
-        flexDirection: "row",
+        flexDirection: "column", // Cambia la dirección del flujo de los elementos a columna
         position: "relative",
-        backgroundColor: "#f3f3f3", // Color de fondo similar al de LinkedIn
-        padding: "20px", // Espaciado interior para el formulario
+        backgroundColor: "#f3f3f3",
+        padding: "20px",
       }}
     >
-      {/* Imagen de fondo */}
-      <Box
-  sx={{
-    width: "80%", // Tamaño del lado izquierdo para la imagen
-    // Establece la altura deseada con la unidad de medida adecuada
-    backgroundImage: `url(${ingresoImgen})`,
-    backgroundSize: "contain", // Ajuste para que la imagen se adapte sin recortar
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat", // Evita que la imagen se repita
-     // Ajusta la opacidad para que no oculte el formulario completamente
-  }}
-/>
-      
       {/* Formulario */}
       <Box
         sx={{
-          width: "50%", // Tamaño del lado derecho para el formulario
-          padding: "20px", // Espaciado interior para el formulario
+          width: "100%",
+          padding: "20px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
+          order: 2, // Cambia el orden del formulario para que aparezca debajo en dispositivos móviles
         }}
       >
-        <Typography variant="h4" gutterBottom color = "red" > 
+        <Typography variant="h4" gutterBottom color="red">
           Conectando Talentos !
         </Typography>
         <form onSubmit={formik.handleSubmit} style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)", width: "80%" }}>
@@ -232,6 +220,19 @@ const Login = () => {
           </Grid>
         </form>
       </Box>
+
+      {/* Imagen de fondo */}
+      <Box
+        sx={{
+          width: "100%",
+          height: "40vh", // Establece la altura deseada para la imagen en dispositivos móviles
+          backgroundImage: `url(${ingresoImgen})`,
+          backgroundSize: "contain",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          order: 1, // Cambia el orden de la imagen para que aparezca arriba en dispositivos móviles
+        }}
+      />
     </Box>
   );
 };
