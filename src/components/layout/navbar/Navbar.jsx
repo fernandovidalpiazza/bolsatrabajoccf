@@ -117,7 +117,7 @@ function Navbar(props) {
       <Box component="main" sx={{ flexGrow: 1, py: 4 }}>
         <AppBar position="fixed" sx={{ width: "100%", right: 0 }}>
           <Toolbar sx={{ justifyContent: "flex-center" }}>
-            <Button color="inherit" onClick={handleDrawerToggle}>Presione aquí</Button>
+            <Button color="inherit" onClick={handleDrawerToggle}>Registrate</Button>
           </Toolbar>
         </AppBar>
         <Toolbar />

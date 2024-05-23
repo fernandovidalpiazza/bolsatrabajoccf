@@ -21,6 +21,7 @@ import { db, loginGoogle, onSigIn } from "../../../firebaseConfig";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { AuthContext } from "../../../context/AuthContext";
 import Swal from 'sweetalert2';
+import ingresoImgen from "../../assets/ingreso.jpeg";
 
 const Login = () => {
   const { handleLogin } = useContext(AuthContext);
@@ -93,58 +94,85 @@ const Login = () => {
         width: "100%",
         minHeight: "100vh",
         display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
+        flexDirection: "row",
+        position: "relative",
+        backgroundColor: "#f3f3f3", // Color de fondo similar al de LinkedIn
+        padding: "20px", // Espaciado interior para el formulario
       }}
     >
-      <form onSubmit={formik.handleSubmit}>
-        <Grid container rowSpacing={2} justifyContent={"center"}>
-          <Grid item xs={10} md={12}>
-            <TextField
-              name="email"
-              label="Email"
-              fullWidth
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.email}
-              error={formik.touched.email && Boolean(formik.errors.email)}
-              helperText={formik.touched.email && formik.errors.email}
-            />
-          </Grid>
-          <Grid item xs={10} md={12}>
-            <FormControl variant="outlined" fullWidth error={formik.touched.password && Boolean(formik.errors.password)}>
-              <InputLabel htmlFor="outlined-adornment-password">Contraseña</InputLabel>
-              <OutlinedInput
-                name="password"
+      {/* Imagen de fondo */}
+      <Box
+  sx={{
+    width: "80%", // Tamaño del lado izquierdo para la imagen
+    // Establece la altura deseada con la unidad de medida adecuada
+    backgroundImage: `url(${ingresoImgen})`,
+    backgroundSize: "contain", // Ajuste para que la imagen se adapte sin recortar
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat", // Evita que la imagen se repita
+     // Ajusta la opacidad para que no oculte el formulario completamente
+  }}
+/>
+      
+      {/* Formulario */}
+      <Box
+        sx={{
+          width: "50%", // Tamaño del lado derecho para el formulario
+          padding: "20px", // Espaciado interior para el formulario
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h4" gutterBottom color = "red" > 
+          Conectando Talentos !
+        </Typography>
+        <form onSubmit={formik.handleSubmit} style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)", width: "80%" }}>
+          <Grid container rowSpacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                name="email"
+                label="Email"
+                fullWidth
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values.password}
-                id="outlined-adornment-password"
-                type={showPassword ? "text" : "password"}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff color="primary" /> : <Visibility color="primary" />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-                label="Contraseña"
+                value={formik.values.email}
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={formik.touched.email && formik.errors.email}
               />
-              {formik.touched.password && formik.errors.password && (
-                <Typography variant="caption" color="error">{formik.errors.password}</Typography>
-              )}
-            </FormControl>
-          </Grid>
-          <Link to="/forgot-password" style={{ color: "steelblue", marginTop: "10px" }}>
-            ¿Olvidaste tu contraseña?
-          </Link>
-          <Grid container justifyContent="center" spacing={3} mt={2}>
-            <Grid item xs={10} md={5}>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl variant="outlined" fullWidth error={formik.touched.password && Boolean(formik.errors.password)}>
+                <InputLabel htmlFor="outlined-adornment-password">Contraseña</InputLabel>
+                <OutlinedInput
+                  name="password"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.password}
+                  id="outlined-adornment-password"
+                  type={showPassword ? "text" : "password"}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff color="primary" /> : <Visibility color="primary" />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="Contraseña"
+                />
+                {formik.touched.password && formik.errors.password && (
+                  <Typography variant="caption" color="error">{formik.errors.password}</Typography>
+                )}
+              </FormControl>
+            </Grid>
+            <Link to="/forgot-password" style={{ color: "#007bff", marginTop: "10px" }}>
+              ¿Olvidaste tu contraseña?
+            </Link>
+            <Grid item xs={12} mt={2}>
               <Button
                 variant="contained"
                 fullWidth
@@ -153,13 +181,14 @@ const Login = () => {
                   color: "white",
                   textTransform: "none",
                   textShadow: "2px 2px 2px grey",
+                  backgroundColor: "#66bb6a", // Cambio de color a verde claro
                 }}
               >
                 Ingresar
               </Button>
             </Grid>
-            <Grid item xs={10} md={5}>
-              <Tooltip title="ingresa con google">
+            <Grid item xs={12} mt={1}>
+              <Tooltip title="Ingresa con Google">
                 <Button
                   variant="contained"
                   startIcon={<GoogleIcon />}
@@ -170,19 +199,20 @@ const Login = () => {
                     color: "white",
                     textTransform: "none",
                     textShadow: "2px 2px 2px grey",
+                    backgroundColor: "#66bb6a", // Cambio de color a verde claro
                   }}
                 >
-                  Ingresa con google
+                  Ingresa con Google
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid item xs={10} md={8}>
-              <Typography color={"secondary.primary"} variant={"h6"} mt={1} align="center">
+            <Grid item xs={12} mt={1}>
+              <Typography color={"secondary.primary"} variant={"h6"} align="center">
                 ¿Aún no tienes cuenta?
               </Typography>
             </Grid>
-            <Grid item xs={10} md={5}>
-              <Tooltip title="ingresa con google">
+            <Grid item xs={12} mt={1}>
+              <Tooltip title="Regístrate">
                 <Button
                   variant="contained"
                   fullWidth
@@ -192,6 +222,7 @@ const Login = () => {
                     color: "white",
                     textTransform: "none",
                     textShadow: "2px 2px 2px grey",
+                    backgroundColor: "#66bb6a", // Cambio de color a verde claro
                   }}
                 >
                   Regístrate
@@ -199,8 +230,8 @@ const Login = () => {
               </Tooltip>
             </Grid>
           </Grid>
-        </Grid>
-      </form>
+        </form>
+      </Box>
     </Box>
   );
 };

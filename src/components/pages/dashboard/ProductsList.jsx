@@ -11,7 +11,7 @@ import {
   Box,
   Typography,
   Modal,
-} from "@mui/material";
+}from "@mui/material"
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { db } from "../../../firebaseConfig";
