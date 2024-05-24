@@ -102,7 +102,7 @@ const ItemListContainer = () => {
         </Box>
       </Box>
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: "20px", justifyContent: "center" }}>
-        {cvs.filter(cv => cv.estado !== "pendiente").map((cv) => (
+      {cvs.filter(cv => cv.estado !== "pendiente" && cv.estado !== "no aprobado").map((cv) => (
           ((selectedProfession === "" || cv.Profesion === selectedProfession) && 
            (selectedCity === "" || cv.Ciudad === selectedCity)) && (
             <Card key={cv.id} sx={{ maxWidth: 300, marginBottom: "20px" }}>

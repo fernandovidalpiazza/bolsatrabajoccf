@@ -11,6 +11,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+ 
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
@@ -94,30 +95,46 @@ const Login = () => {
         width: "100%",
         minHeight: "100vh",
         display: "flex",
-        flexDirection: "column", // Cambia la dirección del flujo de los elementos a columna
+        flexDirection: "row",
         position: "relative",
-        backgroundColor: "#f3f3f3",
-        padding: "20px",
+        backgroundColor: "#f3f3f3", // Color de fondo similar al de LinkedIn
+        padding: "20px", // Espaciado interior para el formulario
+      
       }}
     >
+      {/* Imagen de fondo */}
+     
+       
+      <Box
+     
+  sx={{
+    width: "80%", // Tamaño del lado izquierdo para la imagen
+    // Establece la altura deseada con la unidad de medida adecuada
+    backgroundImage: `url(${ingresoImgen})`,
+    backgroundSize: "contain", // Ajuste para que la imagen se adapte sin recortar
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat", // Evita que la imagen se repita
+     // Ajusta la opacidad para que no oculte el formulario completamente
+  }}
+/>
+      
       {/* Formulario */}
       <Box
         sx={{
-          width: "100%",
-          padding: "20px",
+          width: "50%", // Tamaño del lado derecho para el formulario
+          padding: "20px", // Espaciado interior para el formulario
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          order: 2, // Cambia el orden del formulario para que aparezca debajo en dispositivos móviles
         }}
       >
-        <Typography variant="h4" gutterBottom color="red">
+        <Typography variant="h4" gutterBottom color = "red" > 
           Conectando Talentos !
         </Typography>
         <form onSubmit={formik.handleSubmit} style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)", width: "80%" }}>
           <Grid container rowSpacing={2}>
-            <Grid item xs={12}>
+            <Grid item xs={100}>
               <TextField
                 name="email"
                 label="Email"
@@ -129,7 +146,7 @@ const Login = () => {
                 helperText={formik.touched.email && formik.errors.email}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={20}>
               <FormControl variant="outlined" fullWidth error={formik.touched.password && Boolean(formik.errors.password)}>
                 <InputLabel htmlFor="outlined-adornment-password">Contraseña</InputLabel>
                 <OutlinedInput
@@ -160,7 +177,7 @@ const Login = () => {
             <Link to="/forgot-password" style={{ color: "#007bff", marginTop: "10px" }}>
               ¿Olvidaste tu contraseña?
             </Link>
-            <Grid item xs={12} mt={2}>
+            <Grid item xs={30} mt={2}>
               <Button
                 variant="contained"
                 fullWidth
@@ -175,7 +192,7 @@ const Login = () => {
                 Ingresar
               </Button>
             </Grid>
-            <Grid item xs={12} mt={1}>
+            <Grid item xs={30} mt={1}>
               <Tooltip title="Ingresa con Google">
                 <Button
                   variant="contained"
@@ -194,12 +211,12 @@ const Login = () => {
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid item xs={12} mt={1}>
+            <Grid item xs={30} mt={1}>
               <Typography color={"secondary.primary"} variant={"h6"} align="center">
                 ¿Aún no tienes cuenta?
               </Typography>
             </Grid>
-            <Grid item xs={12} mt={1}>
+            <Grid item xs={30} mt={1}>
               <Tooltip title="Regístrate">
                 <Button
                   variant="contained"
@@ -220,19 +237,6 @@ const Login = () => {
           </Grid>
         </form>
       </Box>
-
-      {/* Imagen de fondo */}
-      <Box
-        sx={{
-          width: "100%",
-          height: "40vh", // Establece la altura deseada para la imagen en dispositivos móviles
-          backgroundImage: `url(${ingresoImgen})`,
-          backgroundSize: "contain",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          order: 1, // Cambia el orden de la imagen para que aparezca arriba en dispositivos móviles
-        }}
-      />
     </Box>
   );
 };

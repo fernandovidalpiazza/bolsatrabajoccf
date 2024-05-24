@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebaseConfig";
 import { Button, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import CargaManual from "./CargaManual";
+import NoAprobado from "./NoAprobado";
 
 const style = {
   position: "absolute",
@@ -24,6 +25,7 @@ const Dashboard = () => {
   const [selectedCV, setSelectedCV] = useState(null);
   const [open, setOpen] = useState(false);
   const [showPending, setShowPending] = useState(false);
+  const [showRejected, setShowRejected] = useState(false); // Cambiado a false por defecto
 
   const fetchPendingCVs = async () => {
     const cvCollection = collection(db, "cv");
@@ -55,10 +57,12 @@ const Dashboard = () => {
   const handleDisapprove = async () => {
     if (!selectedCV) return;
 
-    await deleteDoc(doc(db, "cv", selectedCV.id));
+    await updateDoc(doc(db, "cv", selectedCV.id), { estado: "no aprobado" });
     setSelectedCV(null);
     setOpen(false);
-    fetchPendingCVs(); // Refresh pending CVs
+    setShowPending(false);
+    setShowRejected(true);
+    fetchPendingCVs();
   };
 
   const handleOpenModal = (cv) => {
@@ -72,9 +76,11 @@ const Dashboard = () => {
 
   return (
     <div>
-       
       <Button variant="contained" onClick={() => setShowPending(true)}>
         Ver Pendientes
+      </Button>
+      <Button variant="contained" onClick={() => { setShowPending(false); setShowRejected(true); }}>
+        Ver No Aprobados
       </Button>
       {showPending && (
         <div>
@@ -130,7 +136,6 @@ const Dashboard = () => {
                   >
                     Desaprobar
                   </Button>
-                  
                 </div>
               )}
             </Paper>
@@ -162,10 +167,9 @@ const Dashboard = () => {
           <CargaManual />
         </div>
       )}
+      {showRejected && <NoAprobado />}
     </div>
-
   );
- 
 };
 
 export default Dashboard;

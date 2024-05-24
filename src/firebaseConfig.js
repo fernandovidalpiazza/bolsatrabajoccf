@@ -98,3 +98,13 @@ export const uploadFile = async (file) => {
     throw error;
   }
 };
+
+//no aprobados 
+const handleDisapprove = async () => {
+  if (!selectedCV) return;
+
+  await updateDoc(doc(db, "cv", selectedCV.id), { estado: "no_aprobado" });
+  setSelectedCV(null);
+  setOpen(false);
+  fetchPendingCVs(); // Refresh pending CVs
+};
