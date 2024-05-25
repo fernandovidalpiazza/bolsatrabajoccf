@@ -1,141 +1,121 @@
-import { Button, TextField } from "@mui/material";
-import { useState } from "react";
-import { db, uploadFile } from "../../../firebaseConfig";
-import { addDoc, collection } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  TextField,
+  Grid,
+  Typography,
+} from "@mui/material";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../firebaseConfig";
 
-const CvForm = ({
-  handleClose,
-  setIsChange,
-  cvSelected,
-  setCvSelected,
-  updateDashboard
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [newCv, setNewCv] = useState({
+const CvForm = ({ handleClose, setIsChange, cvSelected, setCvSelected }) => {
+  const [formData, setFormData] = useState({
     Nombre: "",
     Apellido: "",
     Edad: "",
     Profesion: "",
-    Ciudad:"",
     Foto: "",
-    cv: "",
-
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [cvFile, setCvFile] = useState(null);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [isCvLoaded, setIsCvLoaded] = useState(false);
 
-  const handleImage = async () => {
-    setIsLoading(true);
-    let url = await uploadFile(imageFile);
-    setNewCv({ ...newCv, Foto: url });
-    setIsImageLoaded(true);
-    setIsLoading(false);
-  };
-
-  const handleCv = async () => {
-    setIsLoading(true);
-    let url = await uploadFile(cvFile);
-    setNewCv({ ...newCv, cv: url });
-    setIsCvLoaded(true);
-    setIsLoading(false);
-  };
+  useEffect(() => {
+    if (cvSelected) {
+      setFormData({
+        Nombre: cvSelected.Nombre,
+        Apellido: cvSelected.Apellido,
+        Edad: cvSelected.Edad,
+        Profesion: cvSelected.Profesion,
+        Foto: cvSelected.Foto,
+      });
+    }
+  }, [cvSelected]);
 
   const handleChange = (e) => {
-    setNewCv({
-      ...newCv,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const cvCollection = collection(db, "cv");
-
     try {
-      await addDoc(cvCollection, newCv);
-      setIsChange(prev => !prev); // Aquí indicamos que se ha producido un cambio
+      await updateDoc(doc(db, "cv", cvSelected.id), {
+        Nombre: formData.Nombre,
+        Apellido: formData.Apellido,
+        Edad: formData.Edad,
+        Profesion: formData.Profesion,
+        Foto: formData.Foto,
+      });
+      setIsChange(true);
       handleClose();
-      updateDashboard();
     } catch (error) {
-      console.error("Error adding document: ", error);
+      console.error("Error updating CV: ", error);
     }
   };
 
   return (
-    <div>
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-        }}
-      >
-        <TextField
-          variant="outlined"
-          label="Nombre"
-          name="Nombre"
-          value={newCv.Nombre}
-          onChange={handleChange}
-        />
-        <TextField
-          variant="outlined"
-          label="Apellido"
-          name="Apellido"
-          value={newCv.Apellido}
-          onChange={handleChange}
-        />
-        <TextField
-          variant="outlined"
-          label="Edad"
-          name="Edad"
-          value={newCv.Edad}
-          onChange={handleChange}
-        />
-        <TextField
-          variant="outlined"
-          label="Profesión"
-          name="Profesion"
-          value={newCv.Profesion}
-          onChange={handleChange}
-        />
-
-        <TextField
-          variant="outlined"
-          label="Ciudad"
-          name="Ciudad"
-          value={newCv.Ciudad}
-          onChange={handleChange}
-        />
-        <TextField
-          type="file"
-          onChange={(e) => setImageFile(e.target.files[0])}
-        />
-        {imageFile && (
-          <Button onClick={handleImage} type="button">
-            Cargar imagen
+    <form onSubmit={handleSubmit}>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="h6">Editar CV</Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            name="Nombre"
+            label="Nombre"
+            fullWidth
+            value={formData.Nombre}
+            onChange={handleChange}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            name="Apellido"
+            label="Apellido"
+            fullWidth
+            value={formData.Apellido}
+            onChange={handleChange}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            name="Edad"
+            label="Edad"
+            type="number"
+            fullWidth
+            value={formData.Edad}
+            onChange={handleChange}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            name="Profesion"
+            label="Profesión"
+            fullWidth
+            value={formData.Profesion}
+            onChange={handleChange}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            name="Foto"
+            label="URL de la foto"
+            fullWidth
+            value={formData.Foto}
+            onChange={handleChange}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Button type="submit" variant="contained" color="primary">
+            Guardar
           </Button>
-        )}
-        <TextField
-          type="file"
-          onChange={(e) => setCvFile(e.target.files[0])}
-        />
-        {cvFile && (
-          <Button onClick={handleCv} type="button">
-            Cargar CV
+          <Button onClick={handleClose} variant="contained" color="secondary">
+            Cancelar
           </Button>
-        )}
-        {!isLoading && isImageLoaded && isCvLoaded && (
-          <Button variant="contained" type="submit">
-            {cvSelected ? "Modificar" : "Crear"}
-          </Button>
-        )}
-      </form>
-    </div>
+        </Grid>
+      </Grid>
+    </form>
   );
 };
 

@@ -25,7 +25,7 @@ const Dashboard = () => {
   const [selectedCV, setSelectedCV] = useState(null);
   const [open, setOpen] = useState(false);
   const [showPending, setShowPending] = useState(false);
-  const [showRejected, setShowRejected] = useState(false); // Cambiado a false por defecto
+  const [showRejected, setShowRejected] = useState(false); 
 
   const fetchPendingCVs = async () => {
     const cvCollection = collection(db, "cv");
@@ -51,7 +51,7 @@ const Dashboard = () => {
     await updateDoc(doc(db, "cv", selectedCV.id), { estado: "aprobado" });
     setSelectedCV(null);
     setOpen(false);
-    fetchPendingCVs(); // Refresh pending CVs
+    fetchPendingCVs(); 
   };
 
   const handleDisapprove = async () => {
@@ -167,8 +167,9 @@ const Dashboard = () => {
           <CargaManual />
         </div>
       )}
-      {showRejected && <NoAprobado />}
-    </div>
+     
+      {showRejected && <NoAprobado />}      
+    </div>   
   );
 };
 

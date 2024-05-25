@@ -14,10 +14,11 @@ import {
 }from "@mui/material"
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import { db } from "../../../firebaseConfig";
+import { db, storage } from "../../../firebaseConfig";
 import { deleteDoc, doc, collection, getDocs, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import CvForm from "./ProductsForm";
+
 
 const style = {
   position: "absolute",
@@ -108,8 +109,7 @@ const CVList = ({ cvs, setIsChange, approveCV, disapproveCV }) => {
                   <IconButton onClick={() => deleteCV(cv.id)}>
                     <DeleteForeverIcon color="primary" />
                   </IconButton>
-                  <Button onClick={() => approveCV(cv.id)}>Aprobar</Button>
-                  <Button onClick={() => disapproveCV(cv.id)}>Desaprobar</Button>
+                  
                 </TableCell>
               </TableRow>
             ))}
