@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebaseConfig";
 import { Button, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
@@ -7,6 +7,7 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import CargaManual from "./CargaManual";
 import NoAprobado from "./NoAprobado";
+
 
 const style = {
   position: "absolute",
@@ -52,6 +53,9 @@ const Dashboard = () => {
     setSelectedCV(null);
     setOpen(false);
     fetchPendingCVs(); 
+
+    // Enviamos el correo de bienvenida
+    EnvioMail(selectedCV);
   };
 
   const handleDisapprove = async () => {
