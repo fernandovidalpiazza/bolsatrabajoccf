@@ -224,19 +224,19 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
       />
       <TextField
         type="file"
-        label="Foto"
+        label=" Cargar foto de perfil"
         onChange={(e) => setImageFile(e.target.files[0])}
         InputLabelProps={{
           shrink: true,
         }}
-        helperText="Ninguna foto seleccionada"
+        helperText="Cargar foto de perfil"
         required // Campo requerido
         fullWidth
       />
       {imageFile && (
         <Box sx={{ width: '100%' }}>
           <Button onClick={handleImage} type="button" disabled={isLoading || isImageLoaded}>
-            Cargar foto
+            Cargar foto de perfil
           </Button>
           {isLoading && <LinearProgress />}
           {isImageLoaded && <Typography variant="body2" color="textSecondary">Cargado con éxito</Typography>}
@@ -244,12 +244,12 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
       )}
       <TextField
         type="file"
-        label="CV"
+        label="Cargar CV"
         onChange={(e) => setCvFile(e.target.files[0])}
         InputLabelProps={{
           shrink: true,
         }}
-        helperText="Ningún CV seleccionado"
+        helperText=" cargar curriculum vitae"
         required // Campo requerido
         fullWidth
       />
