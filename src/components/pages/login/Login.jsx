@@ -6,7 +6,7 @@ import {
   Grid,
   IconButton,
   InputAdornment,
-  InputLabel,
+  InputLabel, 
   OutlinedInput,
   TextField,
   Tooltip,
@@ -22,6 +22,8 @@ import { collection, doc, getDoc } from "firebase/firestore";
 import { AuthContext } from "../../../context/AuthContext";
 import Swal from 'sweetalert2';
 import ingresoImgen from "../../assets/ingreso.jpeg";
+import conectadoImage from "../../assets/conectado.jpeg";
+
 
 const Login = () => {
   const { handleLogin } = useContext(AuthContext);
@@ -90,113 +92,119 @@ const Login = () => {
 
   return (
     <Box
+      className="home-container"
       sx={{
-        width: "100%",
         minHeight: "100vh",
         display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        position: "relative",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        textAlign: "center",
         backgroundColor: "#f3f3f3", // Color de fondo similar al de LinkedIn
-        padding: "20px", // Espaciado interior para el formulario
       }}
     >
-      {/* Imagen de fondo */}
+      {/* Imagen superior */}
       <Box
         sx={{
-          width: { xs: "100%", md: "50%" }, // Ajuste del tamaño en función del tamaño de pantalla
-          height: { xs: "200px", md: "auto" }, // Ajuste de altura en pantallas pequeñas
-          backgroundImage: `url(${ingresoImgen})`,
-          backgroundSize: "contain", // Ajuste para que la imagen se adapte sin recortar
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat", // Evita que la imagen se repita
-          mb: { xs: 3, md: 0 }, // Margen inferior en pantallas pequeñas
-        }}
-      />
-      
-      {/* Formulario */}
-      <Box
-        sx={{
-          width: { xs: "100%", md: "50%" }, // Ajuste del tamaño en función del tamaño de pantalla
-          padding: "20px", // Espaciado interior para el formulario
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
+          width: "100%",
+          height: "auto",
         }}
       >
-        <Typography variant="h4" gutterBottom color="primary">
-          Conectando Talentos!
-        </Typography>
-        <form onSubmit={formik.handleSubmit} style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)", width: "100%" }}>
-          <Grid container rowSpacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                name="email"
-                label="Email"
-                fullWidth
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.email}
-                error={formik.touched.email && Boolean(formik.errors.email)}
-                helperText={formik.touched.email && formik.errors.email}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl variant="outlined" fullWidth error={formik.touched.password && Boolean(formik.errors.password)}>
-                <InputLabel htmlFor="outlined-adornment-password">Contraseña</InputLabel>
-                <OutlinedInput
-                  name="password"
+        <img src={conectadoImage} alt="Conectado" style={{ width: "100%", height: "auto" }} />
+      </Box>
+
+      <Box
+        sx={{
+          width: "100%",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          position: "relative",
+          padding: "20px", // Espaciado interior para el formulario
+        }}
+      >
+        {/* Imagen de fondo */}
+        <Box
+          sx={{
+            width: { xs: "100%", md: "50%" }, // Ajuste del tamaño en función del tamaño de pantalla
+            height: { xs: "200px", md: "auto" }, // Ajuste de altura en pantallas pequeñas
+            backgroundImage: `url(${ingresoImgen})`,
+            backgroundSize: "contain", // Ajuste para que la imagen se adapte sin recortar
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat", // Evita que la imagen se repita
+            mb: { xs: 3, md: 0 }, // Margen inferior en pantallas pequeñas
+          }}
+        />
+
+        {/* Formulario */}
+        <Box
+          sx={{
+            width: { xs: "100%", md: "50%" }, // Ajuste del tamaño en función del tamaño de pantalla
+            padding: "20px", // Espaciado interior para el formulario
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "white",
+            borderRadius: "8px",
+            boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <Typography variant="h4" gutterBottom color="primary">
+            Conectando Talentos!
+          </Typography>
+          <form onSubmit={formik.handleSubmit} style={{ width: "100%" }}>
+            <Grid container rowSpacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  name="email"
+                  label="Email"
+                  fullWidth
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  value={formik.values.password}
-                  id="outlined-adornment-password"
-                  type={showPassword ? "text" : "password"}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff color="primary" /> : <Visibility color="primary" />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                  label="Contraseña"
+                  value={formik.values.email}
+                  error={formik.touched.email && Boolean(formik.errors.email)}
+                  helperText={formik.touched.email && formik.errors.email}
                 />
-                {formik.touched.password && formik.errors.password && (
-                  <Typography variant="caption" color="error">{formik.errors.password}</Typography>
-                )}
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <Link to="/forgot-password" style={{ color: "#007bff", marginTop: "10px" }}>
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </Grid>
-            <Grid item xs={12} mt={2}>
-              <Button
-                variant="contained"
-                fullWidth
-                type="submit"
-                sx={{
-                  color: "white",
-                  textTransform: "none",
-                  textShadow: "2px 2px 2px grey",
-                  backgroundColor: "#66bb6a", // Cambio de color a verde claro
-                }}
-              >
-                Ingresar
-              </Button>
-            </Grid>
-            <Grid item xs={12} mt={1}>
-              <Tooltip title="Ingresa con Google">
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl variant="outlined" fullWidth error={formik.touched.password && Boolean(formik.errors.password)}>
+                  <InputLabel htmlFor="outlined-adornment-password">Contraseña</InputLabel>
+                  <OutlinedInput
+                    name="password"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.password}
+                    id="outlined-adornment-password"
+                    type={showPassword ? "text" : "password"}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff color="primary" /> : <Visibility color="primary" />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label="Contraseña"
+                  />
+                  {formik.touched.password && formik.errors.password && (
+                    <Typography variant="caption" color="error">{formik.errors.password}</Typography>
+                  )}
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Link to="/forgot-password" style={{ color: "#007bff", marginTop: "10px" }}>
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </Grid>
+              <Grid item xs={12} mt={2}>
                 <Button
                   variant="contained"
-                  startIcon={<GoogleIcon />}
-                  onClick={googleSingIn}
-                  type="button"
                   fullWidth
+                  type="submit"
                   sx={{
                     color: "white",
                     textTransform: "none",
@@ -204,35 +212,54 @@ const Login = () => {
                     backgroundColor: "#66bb6a", // Cambio de color a verde claro
                   }}
                 >
-                  Ingresa con Google
+                  Ingresar
                 </Button>
-              </Tooltip>
+              </Grid>
+              <Grid item xs={12} mt={1}>
+                <Tooltip title="Ingresa con Google">
+                  <Button
+                    variant="contained"
+                    startIcon={<GoogleIcon />}
+                    onClick={googleSingIn}
+                    type="button"
+                    fullWidth
+                    sx={{
+                      color: "white",
+                      textTransform: "none",
+                      textShadow: "2px 2px 2px grey",
+                      backgroundColor: "#66bb6a", // Cambio de color a verde claro
+                    }}
+                  >
+                    Ingresa con Google
+                  </Button>
+                </Tooltip>
+              </Grid>
+              <Grid item xs={12} mt={1}>
+                <Typography color={"secondary.primary"} variant={"h6"} align="center">
+                  ¿Aún no tienes cuenta?
+                </Typography>
+              </Grid>
+              <Grid item xs={12} mt={1}>
+                <Tooltip title="Regístrate">
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={() => navigate("/register")}
+                    type="button"
+                    sx={{
+                      color: "white",
+                      textTransform: "none",
+                      textShadow: "2px 2px 2px grey",
+                      backgroundColor: "#66bb6a", // Cambio de color a verde claro
+                    }}
+                  >
+                    Regístrate
+                  </Button>
+                </Tooltip>
+              </Grid>
             </Grid>
-            <Grid item xs={12} mt={1}>
-              <Typography color={"secondary.primary"} variant={"h6"} align="center">
-                ¿Aún no tienes cuenta?
-              </Typography>
-            </Grid>
-            <Grid item xs={12} mt={1}>
-              <Tooltip title="Regístrate">
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={() => navigate("/register")}
-                  type="button"
-                  sx={{
-                    color: "white",
-                    textTransform: "none",
-                    textShadow: "2px 2px 2px grey",
-                    backgroundColor: "#66bb6a", // Cambio de color a verde claro
-                  }}
-                >
-                  Regístrate
-                </Button>
-              </Tooltip>
-            </Grid>
-          </Grid>
-        </form>
+          </form>
+        </Box>
       </Box>
     </Box>
   );
