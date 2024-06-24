@@ -1,19 +1,31 @@
 import { Box, Button, Grid, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "../../../firebaseConfig";
+import Swal from 'sweetalert2';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
 
-  const [email, setEmail] = useState("")
-
-  const handleSubmit = async (e)=>{
-    e.preventDefault()
-    let res = await forgotPassword(email)
-    navigate("/login")
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await forgotPassword(email);
+      Swal.fire({
+        icon: 'success',
+        title: 'Correo enviado',
+        text: 'Te enviamos un mail, controla tu casilla de correo no deseado. En caso de que no te haya llegado ningún mail, por favor contáctate con nosotros a este mail ccariramallo@gmail.com'
+      });
+      navigate("/login");
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema enviando el correo. Por favor intenta nuevamente.'
+      });
+    }
+  };
 
   return (
     <div>
@@ -26,7 +38,6 @@ const ForgotPassword = () => {
           alignItems: "center",
           flexDirection: "column",
           gap: "40px",
-          // backgroundColor: theme.palette.secondary.main,
         }}
       >
         <Typography variant="h5" color={"primary"}>
@@ -36,7 +47,6 @@ const ForgotPassword = () => {
           <Grid
             container
             rowSpacing={2}
-            // alignItems="center"
             justifyContent={"center"}
           >
             <Grid item xs={10} md={12}>
@@ -46,7 +56,7 @@ const ForgotPassword = () => {
                 label="Email"
                 fullWidth
                 name="email"
-                onChange={(e)=>setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </Grid>
             <Grid item xs={10} md={12}>
@@ -56,7 +66,7 @@ const ForgotPassword = () => {
             </Grid>
             <Grid item xs={10} md={12}>
               <Button
-                type="submit"
+                type="button"
                 variant="contained"
                 fullWidth
                 onClick={() => navigate("/login")}
