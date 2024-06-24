@@ -236,7 +236,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
       {imageFile && (
         <Box sx={{ width: '100%' }}>
           <Button onClick={handleImage} type="button" disabled={isLoading || isImageLoaded}>
-            Cargar foto de perfil
+           Presione aqui para Confirmar carga de foto de perfil
           </Button>
           {isLoading && <LinearProgress />}
           {isImageLoaded && <Typography variant="body2" color="textSecondary">Cargado con éxito</Typography>}
@@ -256,7 +256,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
       {cvFile && (
         <Box sx={{ width: '100%' }}>
           <Button onClick={handleCv} type="button" disabled={isLoading || isCvLoaded}>
-            Cargar CV
+           Presione aqui para Confirmar Cargar CV
           </Button>
           {isLoading && <LinearProgress />}
           {isCvLoaded && <Typography variant="body2" color="textSecondary">Cargado con éxito</Typography>}
@@ -264,7 +264,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
       )}
       {!isLoading && isImageLoaded && isCvLoaded && (
         <Button variant="contained" type="submit">
-          Crear
+          Finalizar Carga
         </Button>
       )}
       <Box sx={{ marginTop: "20px", textAlign: "center" }}>
