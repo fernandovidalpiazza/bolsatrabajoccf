@@ -150,9 +150,7 @@ const Login = () => {
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <Typography variant="h4" gutterBottom color="primary">
-            Conectando Talentos!
-          </Typography>
+          
           <form onSubmit={formik.handleSubmit} style={{ width: "100%" }}>
             <Grid container rowSpacing={2}>
               <Grid item xs={12}>
