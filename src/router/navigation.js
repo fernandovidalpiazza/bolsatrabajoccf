@@ -23,7 +23,7 @@ export const menuItems = [
     {
         id: "Cargar Cv",
         path: "/cvc",
-        title: "Registrarte",
+        title: "Cargar Curriculum",
         Icon: AccountCircleIcon
     },
 ]

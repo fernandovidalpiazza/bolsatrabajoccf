@@ -1,11 +1,9 @@
-import { Button, TextField, Box } from "@mui/material";
+import { Button, TextField, Box, Select, MenuItem, Typography, LinearProgress } from "@mui/material";
 import { useState, useEffect } from "react";
 import { db, auth, uploadFile } from "../../../firebaseConfig";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import Swal from "sweetalert2";
 import { Navigate, useNavigate } from "react-router-dom";
-
-import LinearProgress from '@mui/material/LinearProgress';
 
 const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +25,39 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isCvLoaded, setIsCvLoaded] = useState(false);
   const navigate = useNavigate();
+
+  const professionsList = [
+    "Ingeniero",
+    "Doctor",
+    "Abogado",
+    "Carpintero",
+    "Electricista",
+    "Plomero",
+    "Profesor",
+    "Enfermero",
+    "Contador",
+    "Mecánico",
+    "Empleada Domestica",
+    "Administrativo",
+    "Vendedor",
+    "Albanil",
+    "ventas",
+    "Cajero",
+    "Cocinero",
+    "Metalurgico",  
+    "Soldador", 
+    "Vigilacia de Seguridad",
+    "Estilista",
+    "Recepcionista",
+    "concinero",
+    "Jardinero",
+    "Peluquero",
+    "Desarrollador de software",
+    "otros oficios "
+
+
+
+  ];
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -80,6 +111,10 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
       ...newCv,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleProfessionChange = (e) => {
+    setNewCv({ ...newCv, Profesion: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -146,15 +181,28 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         required // Campo requerido
         fullWidth
       />
-      <TextField
-        variant="outlined"
-        label="Profesión"
-        name="Profesion"
-        value={newCv.Profesion}
-        onChange={handleChange}
-        required // Campo requerido
-        fullWidth
-      />
+      <Box sx={{ width: "100%" }}>
+        <Typography variant="body1" sx={{ mb: 1 }}>
+          Profesión
+        </Typography>
+        <Select
+          value={newCv.Profesion}
+          onChange={handleProfessionChange}
+          displayEmpty
+          variant="outlined"
+          fullWidth
+          required
+        >
+          <MenuItem value="" disabled>
+            Seleccione una profesión
+          </MenuItem>
+          {professionsList.map((profession, index) => (
+            <MenuItem key={index} value={profession}>
+              {profession}
+            </MenuItem>
+          ))}
+        </Select>
+      </Box>
       <TextField
         variant="outlined"
         label="Ciudad"
@@ -185,19 +233,15 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         required // Campo requerido
         fullWidth
       />
-     {imageFile && (
-  <Box sx={{ width: '100%' }}>
-  <Button onClick={handleImage} type="button" disabled={isLoading || isImageLoaded}>
-    Cargar foto
-  </Button>
-  {isLoading && <LinearProgress />}
-  {isImageLoaded && <p>Cargado con éxito</p>}
-</Box>
-)}
-
-
-
-
+      {imageFile && (
+        <Box sx={{ width: '100%' }}>
+          <Button onClick={handleImage} type="button" disabled={isLoading || isImageLoaded}>
+            Cargar foto
+          </Button>
+          {isLoading && <LinearProgress />}
+          {isImageLoaded && <Typography variant="body2" color="textSecondary">Cargado con éxito</Typography>}
+        </Box>
+      )}
       <TextField
         type="file"
         label="CV"
@@ -210,25 +254,19 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         fullWidth
       />
       {cvFile && (
-       <Box sx={{ width: '100%' }}>
-      <Button onClick={handleCv} type="button" disabled={isLoading || isCvLoaded}>
-        Cargar CV
-      </Button>
-      {isLoading && <LinearProgress />}
-      {isCvLoaded && <p>Cargado con éxito</p>}
-
-
-    </Box>
-  )}
-      
-
-      
-    {!isLoading && isImageLoaded && isCvLoaded && (
-  <Button variant="contained" type="submit">
-    Crear
-  </Button>
-)}
-   
+        <Box sx={{ width: '100%' }}>
+          <Button onClick={handleCv} type="button" disabled={isLoading || isCvLoaded}>
+            Cargar CV
+          </Button>
+          {isLoading && <LinearProgress />}
+          {isCvLoaded && <Typography variant="body2" color="textSecondary">Cargado con éxito</Typography>}
+        </Box>
+      )}
+      {!isLoading && isImageLoaded && isCvLoaded && (
+        <Button variant="contained" type="submit">
+          Crear
+        </Button>
+      )}
     </Box>
   );
 };
