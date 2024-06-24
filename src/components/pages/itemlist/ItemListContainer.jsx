@@ -34,17 +34,6 @@ const ItemListContainer = () => {
     window.open(url, "_blank");
   };
 
-  // Función para mostrar el CV
-  const handleShowCV = (cvId) => {
-    const updatedCvs = cvs.map((cv) => {
-      if (cv.id === cvId) {
-        return { ...cv, showCV: true };
-      }
-      return cv;
-    });
-    setCvs(updatedCvs);
-  };
-
   // Función para filtrar por profesión
   const handleProfessionChange = (event) => {
     setSelectedProfession(event.target.value);
@@ -97,25 +86,14 @@ const ItemListContainer = () => {
                       <Typography variant="body2" color="text.secondary">
                         Profesión: {cv.Profesion}
                       </Typography>
-                      {cv.showCV ? (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() => handleDownloadPDF(cv.cv)}
-                          sx={{ mt: 2 }}
-                        >
-                          Ver CV
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() => handleShowCV(cv.id)}
-                          sx={{ mt: 2 }}
-                        >
-                          Saber Más
-                        </Button>
-                      )}
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleDownloadPDF(cv.cv)}
+                        sx={{ mt: 2 }}
+                      >
+                        Ver CV
+                      </Button>
                     </CardContent>
                   </Card>
                 </Grid>
