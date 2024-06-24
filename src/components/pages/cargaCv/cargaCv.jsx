@@ -267,6 +267,13 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
           Crear
         </Button>
       )}
+      <Box sx={{ marginTop: "20px", textAlign: "center" }}>
+      <Typography variant="body1">
+        En caso de que no puedas cargar tu CV, no te preocupes. Mándanos una foto de perfil y tu CV al correo 
+        <Typography component="span" variant="body1" sx={{ fontWeight: "bold" }}> ccariramallo@gmail.com </Typography> 
+        y nosotros lo cargamos por vos. Tene en cuenta que podemos demorar unos días, por favor, sé paciente.
+      </Typography>
+    </Box>
     </Box>
   );
 };
