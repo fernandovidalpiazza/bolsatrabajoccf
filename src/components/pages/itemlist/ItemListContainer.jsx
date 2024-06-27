@@ -41,8 +41,8 @@ const ItemListContainer = () => {
 
   return (
     <Container>
-      <Typography variant="h3" sx={{ mb: 4, textAlign: 'center', fontFamily: 'Arial', fontWeight: 'bold' }}>
-        ¿Estás interesado en encontrar un perfil de trabajo?
+      <Typography variant="h3" sx={{ mb: 4, textAlign: 'center', fontFamily: 'cursive', fontWeight: 'bold' }}>
+      Conecta con perfiles laborales
       </Typography>
       <Grid container spacing={4}>
         <Grid item xs={12} md={3}>
