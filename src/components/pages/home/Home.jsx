@@ -5,13 +5,12 @@ import img2 from '../../assets/2.jpeg';
 import img3 from '../../assets/3.jpeg';
 import img4 from '../../assets/4.jpeg';
 import conectado from '../../assets/conectado.jpeg';
-import styles from './styles.module.css'; // Corrige la importación de estilos
+import styles from './styles.module.css';
 
 const Home = () => {
   return (
     <Box className={styles.homeContainer}>
       <img src={conectado} alt="Conectado" className={styles.conectadoImage} />
-
       <Box className={styles.gridContainer}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={3} md={6}>

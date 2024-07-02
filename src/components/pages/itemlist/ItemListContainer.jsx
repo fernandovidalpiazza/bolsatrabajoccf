@@ -41,13 +41,13 @@ const ItemListContainer = () => {
 
   return (
     <Container>
-      <Typography variant="h3" sx={{ mb: 4, textAlign: 'center', fontFamily: 'cursive', fontWeight: 'bold' }}>
-      Conecta con perfiles laborales
+      <Typography variant="h3" sx={{ mb: 4, textAlign: 'center', fontFamily: 'Arimo', fontWeight: 'bold' }}>
+        Conecta con perfiles laborales
       </Typography>
       <Grid container spacing={4}>
         <Grid item xs={12} md={3}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <Typography variant="h6" sx={{ fontFamily: 'Arial' }}>Filtrar por profesión</Typography>
+            <Typography variant="h6" sx={{ fontFamily: 'Cy Grotesk Key' }}>Filtrar por profesión</Typography>
             <Select
               value={selectedProfession || ''}
               onChange={handleProfessionChange}
@@ -77,13 +77,13 @@ const ItemListContainer = () => {
                       alt="CV Foto"
                     />
                     <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
+                      <Typography gutterBottom variant="h5" component="div" sx={{ fontFamily: 'Arimo', fontWeight: 'bold' }}>
                         {cv.Nombre} {cv.Apellido}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cy Grotesk Key' }}>
                         Edad: {cv.Edad}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cy Grotesk Key' }}>
                         Profesión: {cv.Profesion}
                       </Typography>
                       <Button
