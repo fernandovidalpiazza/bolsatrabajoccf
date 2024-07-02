@@ -1,4 +1,3 @@
-
 import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +12,7 @@ import React, { useState } from 'react';
 const Register = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState(true);
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
@@ -38,6 +38,7 @@ const Register = () => {
             title: '¡Error!',
             text: '¡Usted ya está registrado!',
           });
+          setIsButtonVisible(true); // Volver a mostrar el botón si hay error
           return; // Salir de la función onSubmit si el usuario ya está registrado
         }
 
@@ -51,19 +52,19 @@ const Register = () => {
           icon: 'success',
           title: '¡Registro exitoso!',
           text: 'Usted se ha registrado correctamente.',
-        timer: 2000, // Tiempo de espera en milisegundos
+          timer: 2000, // Tiempo de espera en milisegundos
           timerProgressBar: true, // Mostrar barra de progreso
           
-            }).then(() => {
-            navigate("/login");
+        }).then(() => {
+          navigate("/login");
         });
       } catch (error) {
-        // Manejar específicamente el casofdsa de correo electrónico en uso
+        // Manejar específicamente el caso de correo electrónico en uso
         if (error.code === 'auth/email-already-in-use') {
           Swal.fire({
             icon: 'error',
             title: '¡Error!',
-            text: '¡No pudistes regitrarte el correo ya esta en uso.. intenta con otro correo o inicia secion !',
+            text: '¡No pudiste registrarte, el correo ya está en uso. Intenta con otro correo o inicia sesión!',
           });
         } else {
           // Mostrar Sweet Alert de error general si hay otros errores
@@ -74,9 +75,16 @@ const Register = () => {
           });
           console.error(error);
         }
+        setIsButtonVisible(true); // Volver a mostrar el botón si hay error
       }
     }
   });
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    setIsButtonVisible(false);
+    formik.handleSubmit();
+  };
 
   return (
     <Box
@@ -89,7 +97,7 @@ const Register = () => {
         flexDirection: "column",
       }}
     >
-      <form onSubmit={formik.handleSubmit}>
+      <form onSubmit={handleFormSubmit}>
         <Grid
           container
           rowSpacing={2}
@@ -175,18 +183,20 @@ const Register = () => {
           </Grid>
           <Grid container justifyContent="center" spacing={3} mt={2}>
             <Grid item xs={10} md={7}>
-              <Button
-                variant="contained"
-                fullWidth
-                type="submit"
-                sx={{
-                  color: "white",
-                  textTransform: "none",
-                  textShadow: "2px 2px 2px grey",
-                }}
-              >
-                Registrarme
-              </Button>
+              {isButtonVisible && (
+                <Button
+                  variant="contained"
+                  fullWidth
+                  type="submit"
+                  sx={{
+                    color: "white",
+                    textTransform: "none",
+                    textShadow: "2px 2px 2px grey",
+                  }}
+                >
+                  Registrarme
+                </Button>
+              )}
             </Grid>
             <Grid item xs={10} md={7}>
               <Button
