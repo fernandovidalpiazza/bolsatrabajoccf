@@ -8,9 +8,9 @@ import styles from './styles.module.css';
 const Home = () => {
   return (
     <Box className={styles.homeContainer}>
-      <img src={placa1} alt="placa1" className={styles.conectadoImage} />
+      <img src={placa2} alt="placa2" className={styles.conectadoImage} />
       <Box className={styles.gridContainer}>
-        <img src={placa2} alt="placa2" className={styles.conectadoImage} />
+        <img src={placa1} alt="placa1" className={styles.conectadoImage} />
       </Box>
     </Box>
   );
