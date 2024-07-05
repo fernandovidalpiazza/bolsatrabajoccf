@@ -49,10 +49,14 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     "Vigilacia de Seguridad",
     "Estilista",
     "Recepcionista",
-    "concinero",
+    "cocinero",
     "Jardinero",
     "Peluquero",
     "Desarrollador de software",
+    "Psicologo",
+    "Acompañante Terapeutico",
+    "Cuidado de personas mayores",  
+   
     "otros oficios "
 
 
