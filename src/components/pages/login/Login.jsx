@@ -21,7 +21,7 @@ import { db, loginGoogle, onSigIn } from "../../../firebaseConfig";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { AuthContext } from "../../../context/AuthContext";
 import Swal from 'sweetalert2';
-import ingresoImgen from "../../assets/ingreso.jpeg";
+import placargistro from "../../assets/placargistro.jpeg";
 import conectadoImage from "../../assets/conectado.jpeg";
 
 
@@ -128,7 +128,7 @@ const Login = () => {
           sx={{
             width: { xs: "100%", md: "50%" }, // Ajuste del tamaño en función del tamaño de pantalla
             height: { xs: "200px", md: "auto" }, // Ajuste de altura en pantallas pequeñas
-            backgroundImage: `url(${ingresoImgen})`,
+            backgroundImage: `url(${placargistro})`,
             backgroundSize: "contain", // Ajuste para que la imagen se adapte sin recortar
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat", // Evita que la imagen se repita

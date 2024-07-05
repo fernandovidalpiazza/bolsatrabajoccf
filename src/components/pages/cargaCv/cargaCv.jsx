@@ -1,9 +1,9 @@
+import React, { useState, useEffect } from "react";
 import { Button, TextField, Box, Select, MenuItem, Typography, LinearProgress } from "@mui/material";
-import { useState, useEffect } from "react";
 import { db, auth, uploadFile } from "../../../firebaseConfig";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import Swal from "sweetalert2";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,47 +20,18 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     estado: "pendiente",
   });
 
-  const [imageFile, setImageFile] = useState(null);
-  const [cvFile, setCvFile] = useState(null);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isCvLoaded, setIsCvLoaded] = useState(false);
   const navigate = useNavigate();
 
   const professionsList = [
-    "Ingeniero",
-    "Doctor",
-    "Abogado",
-    "Carpintero",
-    "Electricista",
-    "Plomero",
-    "Profesor",
-    "Enfermero",
-    "Contador",
-    "Mecánico",
-    "Empleada Domestica",
-    "Administrativo",
-    "Vendedor",
-    "Albanil",
-    "ventas",
-    "Cajero",
-    "Cocinero",
-    "Metalurgico",  
-    "Soldador", 
-    "Vigilacia de Seguridad",
-    "Estilista",
-    "Recepcionista",
-    "cocinero",
-    "Jardinero",
-    "Peluquero",
-    "Desarrollador de software",
-    "Psicologo",
-    "Acompañante Terapeutico",
-    "Cuidado de personas mayores",  
-   
-    "otros oficios "
-
-
-
+    "Ingeniero", "Doctor", "Abogado", "Carpintero", "Electricista", "Plomero",
+    "Profesor", "Enfermero", "Contador", "Mecánico", "Empleada Domestica",
+    "Administrativo", "Vendedor", "Albanil", "ventas", "Cajero", "Cocinero",
+    "Metalurgico", "Soldador", "Vigilacia de Seguridad", "Estilista",
+    "Recepcionista", "cocinero", "Jardinero", "Peluquero", "Desarrollador de software",
+    "Psicologo", "Acompañante Terapeutico", "Cuidado de personas mayores",
+    "otros oficios"
   ];
 
   useEffect(() => {
@@ -94,20 +65,34 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     }
   };
 
-  const handleImage = async () => {
+  const handleImage = async (file) => {
     setIsLoading(true);
-    let url = await uploadFile(imageFile);
-    setNewCv({ ...newCv, Foto: url });
+    let url = await uploadFile(file);
+    setNewCv((prevCv) => ({ ...prevCv, Foto: url }));
     setIsImageLoaded(true);
     setIsLoading(false);
   };
 
-  const handleCv = async () => {
+  const handleCv = async (file) => {
     setIsLoading(true);
-    let url = await uploadFile(cvFile);
-    setNewCv({ ...newCv, cv: url });
+    let url = await uploadFile(file);
+    setNewCv((prevCv) => ({ ...prevCv, cv: url }));
     setIsCvLoaded(true);
     setIsLoading(false);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleImage(file);
+    }
+  };
+
+  const handleCvChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleCv(file);
+    }
   };
 
   const handleChange = (e) => {
@@ -135,7 +120,6 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         text: "Tu CV está en proceso de revisión. Te enviaremos un correo electrónico cuando se acepte.",
       }).then(() => {
         navigate("/");
-
         setIsChange((prev) => !prev);
         handleClose();
         updateDashboard();
@@ -164,7 +148,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         name="Nombre"
         value={newCv.Nombre}
         onChange={handleChange}
-        required // Campo requerido
+        required
         fullWidth
       />
       <TextField
@@ -173,7 +157,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         name="Apellido"
         value={newCv.Apellido}
         onChange={handleChange}
-        required // Campo requerido
+        required
         fullWidth
       />
       <TextField
@@ -182,7 +166,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         name="Edad"
         value={newCv.Edad}
         onChange={handleChange}
-        required // Campo requerido
+        required
         fullWidth
       />
       <Box sx={{ width: "100%" }}>
@@ -213,58 +197,62 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         name="Ciudad"
         value={newCv.Ciudad}
         onChange={handleChange}
-        required // Campo requerido
+        required
         fullWidth
       />
       <TextField
         variant="outlined"
         type="email"
-        label="Correo Electrónico" // Campo de correo electrónico
+        label="Correo Electrónico"
         name="Email"
         value={newCv.Email}
         onChange={handleChange}
-        required // Campo requerido
+        required
         fullWidth
       />
       <TextField
         type="file"
-        label=" Cargar foto de perfil"
-        onChange={(e) => setImageFile(e.target.files[0])}
+        label="Cargar foto de perfil"
+        onChange={handleImageChange}
         InputLabelProps={{
           shrink: true,
         }}
         helperText="Cargar foto de perfil"
-        required // Campo requerido
+        required
         fullWidth
       />
-      {imageFile && (
-        <Box sx={{ width: '100%' }}>
-          <Button onClick={handleImage} type="button" disabled={isLoading || isImageLoaded}>
-           Presione aqui para Confirmar carga de foto de perfil
-          </Button>
-          {isLoading && <LinearProgress />}
-          {isImageLoaded && <Typography variant="body2" color="textSecondary">Cargado con éxito</Typography>}
-        </Box>
+      {isLoading && <LinearProgress />}
+      {isImageLoaded && (
+        <Typography variant="body2" color="textSecondary">
+          Foto cargada con éxito
+        </Typography>
+      )}
+      {isImageLoaded && (
+        <Button onClick={() => setIsImageLoaded(false)}>
+          Modificar Foto
+        </Button>
       )}
       <TextField
         type="file"
         label="Cargar CV"
-        onChange={(e) => setCvFile(e.target.files[0])}
+        onChange={handleCvChange}
         InputLabelProps={{
           shrink: true,
         }}
-        helperText=" cargar curriculum vitae"
-        required // Campo requerido
+        helperText="Cargar curriculum vitae"
+        required
         fullWidth
       />
-      {cvFile && (
-        <Box sx={{ width: '100%' }}>
-          <Button onClick={handleCv} type="button" disabled={isLoading || isCvLoaded}>
-           Presione aqui para Confirmar Cargar CV
-          </Button>
-          {isLoading && <LinearProgress />}
-          {isCvLoaded && <Typography variant="body2" color="textSecondary">Cargado con éxito</Typography>}
-        </Box>
+      {isLoading && <LinearProgress />}
+      {isCvLoaded && (
+        <Typography variant="body2" color="textSecondary">
+          CV cargado con éxito
+        </Typography>
+      )}
+      {isCvLoaded && (
+        <Button onClick={() => setIsCvLoaded(false)}>
+          Modificar CV
+        </Button>
       )}
       {!isLoading && isImageLoaded && isCvLoaded && (
         <Button variant="contained" type="submit">
@@ -272,12 +260,14 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         </Button>
       )}
       <Box sx={{ marginTop: "20px", textAlign: "center" }}>
-      <Typography variant="body1">
-        En caso de que no puedas cargar tu CV, no te preocupes. Mándanos una foto de perfil y tu CV al correo 
-        <Typography component="span" variant="body1" sx={{ fontWeight: "bold" }}> ccariramallo@gmail.com </Typography> 
-        y nosotros lo cargamos por vos. Tene en cuenta que podemos demorar unos días, por favor, sé paciente.
-      </Typography>
-    </Box>
+        <Typography variant="body1">
+          En caso de que no puedas cargar tu CV, no te preocupes. Mándanos una foto de perfil y tu CV al correo
+          <Typography component="span" variant="body1" sx={{ fontWeight: "bold" }}>
+            ccariramallo@gmail.com
+          </Typography>
+          y nosotros lo cargamos por vos. Tene en cuenta que podemos demorar unos días, por favor, sé paciente.
+        </Typography>
+      </Box>
     </Box>
   );
 };
