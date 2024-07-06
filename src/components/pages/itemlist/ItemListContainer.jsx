@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { db } from "../../../firebaseConfig";
 import { getDocs, collection } from "firebase/firestore";
-import { Card, CardContent, CardMedia, Typography, Button, Select, MenuItem, Box, Grid, Container } from "@mui/material";
+import { Button, Select, MenuItem, Box, Grid, Container, Typography, Avatar, Paper } from "@mui/material";
 
 const ItemListContainer = () => {
   const [cvs, setCvs] = useState([]);
@@ -69,33 +69,39 @@ const ItemListContainer = () => {
             {cvs.filter(cv => cv.estado !== "pendiente" && cv.estado !== "no aprobado").map((cv) => (
               ((selectedProfession === "" || cv.Profesion === selectedProfession)) && (
                 <Grid item xs={12} sm={6} md={4} key={cv.id}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image={cv.Foto}
-                      alt="CV Foto"
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div" sx={{ fontFamily: 'Arimo', fontWeight: 'bold' }}>
-                        {cv.Nombre} {cv.Apellido}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cy Grotesk Key' }}>
-                        Edad: {cv.Edad}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cy Grotesk Key' }}>
-                        Profesión: {cv.Profesion}
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleDownloadPDF(cv.cv)}
-                        sx={{ mt: 2 }}
-                      >
-                        Ver CV
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <Paper sx={{ padding: 2 }}>
+                    <Grid container spacing={2}>
+                      <Grid item>
+                        <Avatar
+                          alt={`${cv.Nombre} ${cv.Apellido}`}
+                          src={cv.Foto}
+                          sx={{ width: 80, height: 80, objectFit: 'cover' }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm container direction="column" spacing={1}>
+                        <Grid item xs>
+                          <Typography gutterBottom variant="h5" component="div" sx={{ fontFamily: 'Arimo', fontWeight: 'bold' }}>
+                            {cv.Nombre} {cv.Apellido}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cy Grotesk Key' }}>
+                            Edad: {cv.Edad}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cy Grotesk Key' }}>
+                            Profesión: {cv.Profesion}
+                          </Typography>
+                        </Grid>
+                        <Grid item>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleDownloadPDF(cv.cv)}
+                          >
+                            Ver CV
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Paper>
                 </Grid>
               )
             ))}
