@@ -110,7 +110,7 @@ const Login = () => {
           height: "auto",
         }}
       >
-        <img src={conectadoImage} alt="Conectado" style={{ width: "100%", height: "auto" }} />
+        <img src={conectadoImage} alt="Conectado" style={{ width: "93%", height: "auto" }} />
       </Box>
 
       <Box
@@ -127,7 +127,7 @@ const Login = () => {
         <Box
           sx={{
             width: { xs: "100%", md: "50%" }, // Ajuste del tamaño en función del tamaño de pantalla
-            height: { xs: "200px", md: "auto" }, // Ajuste de altura en pantallas pequeñas
+            height: { xs: "200px", md: "750px" }, // Ajuste de altura en pantallas pequeñas
             backgroundImage: `url(${placargistro})`,
             backgroundSize: "contain", // Ajuste para que la imagen se adapte sin recortar
             backgroundPosition: "center",
