@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   IconButton,
@@ -11,34 +12,32 @@ import {
   Box,
   Typography,
   Modal,
-}from "@mui/material"
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import { db, storage } from "../../../firebaseConfig";
-import { deleteDoc, doc, collection, getDocs, updateDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import CvForm from "./ProductsForm";
-
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { db, storage } from '../../../firebaseConfig';
+import { deleteDoc, doc, collection, getDocs, updateDoc } from 'firebase/firestore';
+import CvForm from './ProductsForm';
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
   width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
   boxShadow: 24,
   p: 4,
 };
 
-const CVList = ({ cvs, setIsChange, approveCV, disapproveCV }) => {
+const CVList = ({ cvs, setIsChange }) => {
   const [open, setOpen] = useState(false);
   const [cvSelected, setCVSelected] = useState(null);
 
   useEffect(() => {
     const fetchCVs = async () => {
-      const cvCollection = collection(db, "cv");
+      const cvCollection = collection(db, 'cv');
       const querySnapshot = await getDocs(cvCollection);
       const cvData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -51,7 +50,7 @@ const CVList = ({ cvs, setIsChange, approveCV, disapproveCV }) => {
   }, [setIsChange]);
 
   const deleteCV = async (id) => {
-    await deleteDoc(doc(db, "cv", id));
+    await deleteDoc(doc(db, 'cv', id));
     setIsChange(true);
   };
 
@@ -84,10 +83,7 @@ const CVList = ({ cvs, setIsChange, approveCV, disapproveCV }) => {
           </TableHead>
           <TableBody>
             {cvs.map((cv) => (
-              <TableRow
-                key={cv.id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
+              <TableRow key={cv.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component="th" scope="row" align="left">
                   {cv.id}
                 </TableCell>
@@ -96,11 +92,7 @@ const CVList = ({ cvs, setIsChange, approveCV, disapproveCV }) => {
                 <TableCell align="left">{cv.Edad}</TableCell>
                 <TableCell align="left">{cv.Profesion}</TableCell>
                 <TableCell component="th" scope="row" align="left">
-                  <img
-                    src={cv.Foto}
-                    alt=""
-                    style={{ width: "80px", height: "80px" }}
-                  />
+                  <img src={cv.Foto} alt="" style={{ width: '80px', height: '80px' }} />
                 </TableCell>
                 <TableCell align="left">
                   <IconButton onClick={() => handleOpen(cv)}>
@@ -109,7 +101,6 @@ const CVList = ({ cvs, setIsChange, approveCV, disapproveCV }) => {
                   <IconButton onClick={() => deleteCV(cv.id)}>
                     <DeleteForeverIcon color="primary" />
                   </IconButton>
-                  
                 </TableCell>
               </TableRow>
             ))}

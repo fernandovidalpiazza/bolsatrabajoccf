@@ -1,4 +1,5 @@
-import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from "@mui/material";
+import React, { useState } from 'react';
+import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { signUp, db } from "../../../firebaseConfig";
@@ -6,13 +7,13 @@ import { setDoc, doc, getDoc } from "firebase/firestore";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
-import React, { useState } from 'react';
-
+import { RingLoader } from "react-spinners";
 
 const Register = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
@@ -28,6 +29,7 @@ const Register = () => {
       confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir').required('Confirme la contraseña')
     }),
     onSubmit: async (values) => {
+      setLoading(true); // Activar el loader al enviar el formulario
       try {
         // Verificar si el usuario ya está registrado
         const docSnap = await getDoc(doc(db, "users", values.email));
@@ -75,7 +77,9 @@ const Register = () => {
           });
           console.error(error);
         }
-        setIsButtonVisible(true); // Volver a mostrar el botón si hay error
+      } finally {
+        setLoading(false); // Desactivar el loader después de completar el registro, incluso si hay errores
+        setIsButtonVisible(true); // Mostrar el botón de registro nuevamente al finalizar
       }
     }
   });
@@ -183,20 +187,31 @@ const Register = () => {
           </Grid>
           <Grid container justifyContent="center" spacing={3} mt={2}>
             <Grid item xs={10} md={7}>
-              {isButtonVisible && (
-                <Button
-                  variant="contained"
-                  fullWidth
-                  type="submit"
-                  sx={{
-                    color: "white",
-                    textTransform: "none",
-                    textShadow: "2px 2px 2px grey",
-                  }}
-                >
-                  Registrarme
-                </Button>
-              )}
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  position: 'relative',
+                  height: '56px' // Ajusta la altura según el tamaño del botón
+                }}
+              >
+                {loading && <RingLoader color="red" size={50} />} {/* Spinner de carga con color rojo */}
+                {!loading && isButtonVisible && (
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    type="submit"
+                    sx={{
+                      color: "white",
+                      textTransform: "none",
+                      textShadow: "2px 2px 2px grey",
+                    }}
+                  >
+                    Registrarme
+                  </Button>
+                )}
+              </Box>
             </Grid>
             <Grid item xs={10} md={7}>
               <Button

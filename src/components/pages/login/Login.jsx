@@ -6,7 +6,7 @@ import {
   Grid,
   IconButton,
   InputAdornment,
-  InputLabel, 
+  InputLabel,
   OutlinedInput,
   TextField,
   Tooltip,
@@ -21,13 +21,14 @@ import { db, loginGoogle, onSigIn } from "../../../firebaseConfig";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { AuthContext } from "../../../context/AuthContext";
 import Swal from 'sweetalert2';
+import { RingLoader } from "react-spinners"; // Importa RingLoader desde react-spinners
 import placargistro from "../../assets/placargistro.jpeg";
 import conectadoImage from "../../assets/conectado.jpeg";
-
 
 const Login = () => {
   const { handleLogin } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // Estado para controlar la carga
   const navigate = useNavigate();
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
@@ -44,6 +45,7 @@ const Login = () => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
+      setLoading(true); // Activar el loader al enviar el formulario
       try {
         const res = await onSigIn(values);
         if (res?.user) {
@@ -70,11 +72,14 @@ const Login = () => {
           title: 'Oops...',
           text: 'Usted no está registrado!, Verifique su contraseña su mail, o regístrese',
         });
+      } finally {
+        setLoading(false); // Desactivar el loader después de completar la autenticación
       }
     },
   });
 
   const googleSingIn = async () => {
+    setLoading(true); // Activar el loader al iniciar sesión con Google
     try {
       let res = await loginGoogle();
       let finalyUser = {
@@ -83,10 +88,11 @@ const Login = () => {
       };
       handleLogin(finalyUser);
       navigate("/");
-      
     } catch (error) {
       console.log(error);
       alert('Error al iniciar sesión con Google. Por favor, inténtelo de nuevo.');
+    } finally {
+      setLoading(false); // Desactivar el loader después de intentar iniciar sesión con Google
     }
   };
 
@@ -150,7 +156,13 @@ const Login = () => {
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
           }}
         >
-          
+          {/* Loader mientras se procesa */}
+          {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
+              <RingLoader color="#66bb6a" loading={loading} size={50} /> {/* RingLoader */}
+            </Box>
+          )}
+
           <form onSubmit={formik.handleSubmit} style={{ width: "100%" }}>
             <Grid container rowSpacing={2}>
               <Grid item xs={12}>

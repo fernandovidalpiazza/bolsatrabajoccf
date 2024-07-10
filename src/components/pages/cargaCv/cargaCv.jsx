@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Button, TextField, Box, Select, MenuItem, Typography, LinearProgress } from "@mui/material";
+import { Button, TextField, Box, Select, MenuItem, Typography } from "@mui/material";
 import { db, auth, uploadFile } from "../../../firebaseConfig";
-import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { addDoc, collection, query, where, getDocs, setDoc, doc } from "firebase/firestore";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { RingLoader } from "react-spinners"; // Importa el spinner que deseas utilizar
 
 const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [currentCv, setCurrentCv] = useState(null);
   const [newCv, setNewCv] = useState({
     Nombre: "",
     Apellido: "",
     Edad: "",
     Profesion: "",
     Ciudad: "",
-    Email: "", // Nuevo campo para el correo electrónico
+    Email: "",
     Foto: "",
     cv: "",
     estado: "pendiente",
@@ -22,6 +24,8 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
 
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isCvLoaded, setIsCvLoaded] = useState(false);
+  const [loadingImage, setLoadingImage] = useState(false); // Estado para el spinner de la imagen
+  const [loadingCv, setLoadingCv] = useState(false); // Estado para el spinner del CV
   const navigate = useNavigate();
 
   const professionsList = [
@@ -38,7 +42,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        checkIfCvExists(currentUser.uid);
+        fetchCurrentCv(currentUser.uid);
       } else {
         setUser(null);
       }
@@ -47,38 +51,33 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     return () => unsubscribe();
   }, []);
 
-  const checkIfCvExists = async (uid) => {
+  const fetchCurrentCv = async (uid) => {
     const cvCollection = collection(db, "cv");
     const q = query(cvCollection, where("uid", "==", uid));
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-      Swal.fire({
-        icon: "warning",
-        title: "CV Ya Enviado",
-        text: "Usted ya ha enviado un CV.",
-        timer: 2000,
-        timerProgressBar: true,
-      }).then(() => {
-        navigate("/");
+      querySnapshot.forEach((doc) => {
+        setCurrentCv({ id: doc.id, ...doc.data() });
+        setNewCv({ ...doc.data(), estado: "pendiente" });
       });
     }
   };
 
   const handleImage = async (file) => {
-    setIsLoading(true);
+    setLoadingImage(true); // Mostrar spinner de carga para imagen
     let url = await uploadFile(file);
     setNewCv((prevCv) => ({ ...prevCv, Foto: url }));
     setIsImageLoaded(true);
-    setIsLoading(false);
+    setLoadingImage(false); // Ocultar spinner de carga para imagen
   };
 
   const handleCv = async (file) => {
-    setIsLoading(true);
+    setLoadingCv(true); // Mostrar spinner de carga para CV
     let url = await uploadFile(file);
     setNewCv((prevCv) => ({ ...prevCv, cv: url }));
     setIsCvLoaded(true);
-    setIsLoading(false);
+    setLoadingCv(false); // Ocultar spinner de carga para CV
   };
 
   const handleImageChange = (e) => {
@@ -110,22 +109,36 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     e.preventDefault();
     if (!user) return;
 
-    const cvCollection = collection(db, "cv");
-
     try {
-      await addDoc(cvCollection, { ...newCv, uid: user.uid });
-      Swal.fire({
-        icon: "info",
-        title: "CV Enviado",
-        text: "Tu CV está en proceso de revisión. Te enviaremos un correo electrónico cuando se acepte.",
-      }).then(() => {
-        navigate("/");
-        setIsChange((prev) => !prev);
-        handleClose();
-        updateDashboard();
-      });
+      if (currentCv) {
+        const cvDocRef = doc(db, "cv", currentCv.id);
+        await setDoc(cvDocRef, { ...newCv, estado: "pendiente", uid: user.uid }, { merge: true });
+        Swal.fire({
+          icon: "info",
+          title: "CV Actualizado",
+          text: "Tu CV ha sido actualizado y está en proceso de revisión.",
+        }).then(() => {
+          navigate("/");
+          setIsChange((prev) => !prev);
+          handleClose();
+          updateDashboard();
+        });
+      } else {
+        const cvCollection = collection(db, "cv");
+        await addDoc(cvCollection, { ...newCv, uid: user.uid });
+        Swal.fire({
+          icon: "info",
+          title: "CV Enviado",
+          text: "Tu CV está en proceso de revisión. Te enviaremos un correo electrónico cuando se acepte.",
+        }).then(() => {
+          navigate("/");
+          setIsChange((prev) => !prev);
+          handleClose();
+          updateDashboard();
+        });
+      }
     } catch (error) {
-      console.error("Error adding document: ", error);
+      console.error("Error processing document: ", error);
     }
   };
 
@@ -142,6 +155,9 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         justifyContent: "center",
       }}
     >
+      <Typography variant="h4">
+        {currentCv ? "Actualizar tu perfil y CV" : "Cargar perfil y tu CV"}
+      </Typography>
       <TextField
         variant="outlined"
         label="Nombre"
@@ -221,7 +237,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         required
         fullWidth
       />
-      {isLoading && <LinearProgress />}
+      {loadingImage && <RingLoader color="#36D7B7" size={40} />} {/* Spinner de carga para imagen */}
       {isImageLoaded && (
         <Typography variant="body2" color="textSecondary">
           Foto cargada con éxito
@@ -243,7 +259,7 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         required
         fullWidth
       />
-      {isLoading && <LinearProgress />}
+      {loadingCv && <RingLoader color="#36D7B7" size={40} />} {/* Spinner de carga para CV */}
       {isCvLoaded && (
         <Typography variant="body2" color="textSecondary">
           CV cargado con éxito
