@@ -4,7 +4,7 @@ import { db, auth, uploadFile } from "../../../firebaseConfig";
 import { addDoc, collection, query, where, getDocs, setDoc, doc } from "firebase/firestore";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { RingLoader } from "react-spinners"; // Importa el spinner que deseas utilizar
+import { RingLoader } from "react-spinners";
 
 const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,8 +24,8 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
 
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isCvLoaded, setIsCvLoaded] = useState(false);
-  const [loadingImage, setLoadingImage] = useState(false); // Estado para el spinner de la imagen
-  const [loadingCv, setLoadingCv] = useState(false); // Estado para el spinner del CV
+  const [loadingImage, setLoadingImage] = useState(false);
+  const [loadingCv, setLoadingCv] = useState(false);
   const navigate = useNavigate();
 
   const professionsList = [
@@ -64,34 +64,32 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     }
   };
 
-  const handleImage = async (file) => {
-    setLoadingImage(true); // Mostrar spinner de carga para imagen
-    let url = await uploadFile(file);
-    setNewCv((prevCv) => ({ ...prevCv, Foto: url }));
-    setIsImageLoaded(true);
-    setLoadingImage(false); // Ocultar spinner de carga para imagen
-  };
+  const handleFileUpload = async (file, type) => {
+    if (!file) return;
+    if (type === "Foto") setLoadingImage(true);
+    if (type === "cv") setLoadingCv(true);
 
-  const handleCv = async (file) => {
-    setLoadingCv(true); // Mostrar spinner de carga para CV
-    let url = await uploadFile(file);
-    setNewCv((prevCv) => ({ ...prevCv, cv: url }));
-    setIsCvLoaded(true);
-    setLoadingCv(false); // Ocultar spinner de carga para CV
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      handleImage(file);
+    try {
+      let url = await uploadFile(file);
+      setNewCv((prevCv) => ({ ...prevCv, [type]: url }));
+      if (type === "Foto") {
+        setIsImageLoaded(true);
+        setLoadingImage(false);
+      }
+      if (type === "cv") {
+        setIsCvLoaded(true);
+        setLoadingCv(false);
+      }
+    } catch (error) {
+      console.error(`Error al cargar ${type}:`, error);
+      if (type === "Foto") setLoadingImage(false);
+      if (type === "cv") setLoadingCv(false);
     }
   };
 
-  const handleCvChange = (e) => {
+  const handleFileChange = (e, type) => {
     const file = e.target.files[0];
-    if (file) {
-      handleCv(file);
-    }
+    handleFileUpload(file, type);
   };
 
   const handleChange = (e) => {
@@ -105,184 +103,99 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     setNewCv({ ...newCv, Profesion: e.target.value });
   };
 
+  const handleCiudadChange = (e) => {
+    setNewCv({ ...newCv, Ciudad: e.target.value });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
 
+    setIsLoading(true);
     try {
       if (currentCv) {
         const cvDocRef = doc(db, "cv", currentCv.id);
         await setDoc(cvDocRef, { ...newCv, estado: "pendiente", uid: user.uid }, { merge: true });
-        Swal.fire({
-          icon: "info",
-          title: "CV Actualizado",
-          text: "Tu CV ha sido actualizado y está en proceso de revisión.",
-        }).then(() => {
-          navigate("/");
-          setIsChange((prev) => !prev);
-          handleClose();
-          updateDashboard();
-        });
+        Swal.fire("CV Actualizado", "Tu CV ha sido actualizado y está en proceso de revisión.", "info");
       } else {
-        const cvCollection = collection(db, "cv");
-        await addDoc(cvCollection, { ...newCv, uid: user.uid });
-        Swal.fire({
-          icon: "info",
-          title: "CV Enviado",
-          text: "Tu CV está en proceso de revisión. Te enviaremos un correo electrónico cuando se acepte.",
-        }).then(() => {
-          navigate("/");
-          setIsChange((prev) => !prev);
-          handleClose();
-          updateDashboard();
-        });
+        await addDoc(collection(db, "cv"), { ...newCv, uid: user.uid });
+        Swal.fire("CV Enviado", "Tu CV está en proceso de revisión.", "info");
       }
+      navigate("/");
+      setIsChange((prev) => !prev);
+      handleClose();
+      updateDashboard();
     } catch (error) {
-      console.error("Error processing document: ", error);
+      console.error("Error procesando el documento:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        gap: "20px",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Typography variant="h4">
-        {currentCv ? "Actualizar tu perfil y CV" : "Cargar perfil y tu CV"}
-      </Typography>
-      <TextField
-        variant="outlined"
-        label="Nombre"
-        name="Nombre"
-        value={newCv.Nombre}
-        onChange={handleChange}
-        required
-        fullWidth
-      />
-      <TextField
-        variant="outlined"
-        label="Apellido"
-        name="Apellido"
-        value={newCv.Apellido}
-        onChange={handleChange}
-        required
-        fullWidth
-      />
-      <TextField
-        variant="outlined"
-        label="Edad"
-        name="Edad"
-        value={newCv.Edad}
-        onChange={handleChange}
-        required
-        fullWidth
-      />
+    <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px", alignItems: "center", justifyContent: "center" }}>
+      <Typography variant="h4">{currentCv ? "Actualizar tu perfil y CV" : "Cargar perfil y tu CV"}</Typography>
+      
+      <TextField variant="outlined" label="Nombre" name="Nombre" value={newCv.Nombre} onChange={handleChange} required fullWidth />
+      <TextField variant="outlined" label="Apellido" name="Apellido" value={newCv.Apellido} onChange={handleChange} required fullWidth />
+      <TextField variant="outlined" label="Edad" name="Edad" value={newCv.Edad} onChange={handleChange} required fullWidth />
+
       <Box sx={{ width: "100%" }}>
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          Profesión
-        </Typography>
-        <Select
-          value={newCv.Profesion}
-          onChange={handleProfessionChange}
-          displayEmpty
-          variant="outlined"
-          fullWidth
-          required
-        >
-          <MenuItem value="" disabled>
-            Seleccione una profesión
-          </MenuItem>
+        <Typography variant="body1" sx={{ mb: 1 }}>Profesión</Typography>
+        <Select value={newCv.Profesion} onChange={handleProfessionChange} displayEmpty fullWidth required>
+          <MenuItem value="" disabled>Seleccione una profesión</MenuItem>
           {professionsList.map((profession, index) => (
-            <MenuItem key={index} value={profession}>
-              {profession}
-            </MenuItem>
+            <MenuItem key={index} value={profession}>{profession}</MenuItem>
           ))}
         </Select>
       </Box>
-      <TextField
-        variant="outlined"
-        label="Ciudad"
-        name="Ciudad"
-        value={newCv.Ciudad}
-        onChange={handleChange}
-        required
-        fullWidth
-      />
-      <TextField
-        variant="outlined"
-        type="email"
-        label="Correo Electrónico"
-        name="Email"
-        value={newCv.Email}
-        onChange={handleChange}
-        required
-        fullWidth
-      />
-      <TextField
-        type="file"
-        label="Cargar foto de perfil"
-        onChange={handleImageChange}
-        InputLabelProps={{
-          shrink: true,
-        }}
-        helperText="Cargar foto de perfil"
-        required
-        fullWidth
-      />
-      {loadingImage && <RingLoader color="#36D7B7" size={40} />} {/* Spinner de carga para imagen */}
-      {isImageLoaded && (
-        <Typography variant="body2" color="textSecondary">
-          Foto cargada con éxito
-        </Typography>
-      )}
-      {isImageLoaded && (
-        <Button onClick={() => setIsImageLoaded(false)}>
-          Modificar Foto
-        </Button>
-      )}
-      <TextField
-        type="file"
-        label="Cargar CV"
-        onChange={handleCvChange}
-        InputLabelProps={{
-          shrink: true,
-        }}
-        helperText="Cargar curriculum vitae"
-        required
-        fullWidth
-      />
-      {loadingCv && <RingLoader color="#36D7B7" size={40} />} {/* Spinner de carga para CV */}
-      {isCvLoaded && (
-        <Typography variant="body2" color="textSecondary">
-          CV cargado con éxito
-        </Typography>
-      )}
-      {isCvLoaded && (
-        <Button onClick={() => setIsCvLoaded(false)}>
-          Modificar CV
-        </Button>
-      )}
-      {!isLoading && isImageLoaded && isCvLoaded && (
-        <Button variant="contained" type="submit">
-          Finalizar Carga
-        </Button>
-      )}
+
+      <Select value={newCv.Ciudad} onChange={handleCiudadChange} displayEmpty fullWidth required>
+        <MenuItem value="" disabled>Seleccione una ciudad</MenuItem>
+        <MenuItem value="San Nicolás de los Arroyos">San Nicolás de los Arroyos</MenuItem>
+<MenuItem value="General Rojo">General Rojo</MenuItem>
+<MenuItem value="Conesa">Conesa</MenuItem>
+<MenuItem value="Erézcano">Erézcano</MenuItem>
+<MenuItem value="Campos Salles">Campos Salles</MenuItem>
+<MenuItem value="La Emilia">La Emilia</MenuItem>
+<MenuItem value="Villa Esperanza">Villa Esperanza</MenuItem>
+<MenuItem value="Villa Campi">Villa Campi</MenuItem>
+<MenuItem value="Villa Canto">Villa Canto</MenuItem>
+<MenuItem value="Villa Riccio">Villa Riccio</MenuItem>
+<MenuItem value="Villa Hermosa">Villa Hermosa</MenuItem>
+<MenuItem value="Villa María">Villa María</MenuItem>
+<MenuItem value="Ramallo">Ramallo</MenuItem>
+<MenuItem value="Villa Ramallo">Villa Ramallo</MenuItem>
+<MenuItem value="Aguirrezabala">Aguirrezabala</MenuItem>
+<MenuItem value="La Esperanza">La Esperanza</MenuItem>
+<MenuItem value="La Querencia">La Querencia</MenuItem>
+<MenuItem value="La Noria">La Noria</MenuItem>
+<MenuItem value="La Invernada">La Invernada</MenuItem>
+<MenuItem value="La Reina">La Reina</MenuItem>
+<MenuItem value="La Stegman">La Stegman</MenuItem>
+<MenuItem value="Costa Brava">Costa Brava</MenuItem>
+<MenuItem value="El Júpiter">El Júpiter</MenuItem>
+<MenuItem value="El Paraíso">El Paraíso</MenuItem>
+<MenuItem value="Haras El Ombú">Haras El Ombú</MenuItem>
+<MenuItem value="Las Bahamas">Las Bahamas</MenuItem>
+<MenuItem value="Pérez Millán">Pérez Millán</MenuItem>
+
+      </Select>
+
+      <TextField type="email" label="Correo Electrónico" name="Email" value={newCv.Email} onChange={handleChange} required fullWidth />
+
+      <TextField type="file" onChange={(e) => handleFileChange(e, "Foto")} helperText="Cargar foto de perfil" required fullWidth />
+      {loadingImage && <RingLoader color="#36D7B7" size={40} />}
+      {isImageLoaded && <Typography variant="body2">Foto cargada con éxito</Typography>}
+
+      <TextField type="file" onChange={(e) => handleFileChange(e, "cv")} helperText="Cargar curriculum vitae" required fullWidth />
+      {loadingCv && <RingLoader color="#36D7B7" size={40} />}
+      {isCvLoaded && <Typography variant="body2">CV cargado con éxito</Typography>}
+
+      {!isLoading && isImageLoaded && isCvLoaded && <Button variant="contained" type="submit">Finalizar Carga</Button>}
+
       <Box sx={{ marginTop: "20px", textAlign: "center" }}>
-        <Typography variant="body1">
-          En caso de que no puedas cargar tu CV, no te preocupes. Mándanos una foto de perfil y tu CV al correo
-          <Typography component="span" variant="body1" sx={{ fontWeight: "bold" }}>
-            ccariramallo@gmail.com
-          </Typography>
-          y nosotros lo cargamos por vos. Tene en cuenta que podemos demorar unos días, por favor, sé paciente.
-        </Typography>
+        <Typography variant="body1">Si no puedes cargar tu CV, envíalo a <strong>ccariramallo@gmail.com</strong> y lo subiremos por ti.</Typography>
       </Box>
     </Box>
   );
