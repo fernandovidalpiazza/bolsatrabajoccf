@@ -200,5 +200,5 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     </Box>
   );
 };
-
+//actualizado 15 de febrero 2025
 export default CargaCv;
