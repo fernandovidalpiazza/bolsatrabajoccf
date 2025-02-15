@@ -3,14 +3,22 @@ import { Box } from '@mui/material';
 import placa1 from '../../assets/placa1.jpeg';
 import placa2 from '../../assets/placa2.jpeg';
 
-import styles from './styles.module.css';
-
 const Home = () => {
   return (
-    <Box className={styles.homeContainer}>
-      <img src={placa2} alt="placa2" className={styles.conectadoImage} />
-      <Box className={styles.gridContainer}>
-        <img src={placa1} alt="placa1" className={styles.conectadoImage} />
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+      <Box
+        component="img"
+        src={placa2}
+        alt="placa2"
+        sx={{ width: '100%', maxWidth: 1800, height: '100vh' }}
+      />
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <Box
+          component="img"
+          src={placa1}
+          alt="placa1"
+          sx={{ width: '100%', maxWidth: 1800, height: '100vh' }}
+        />
       </Box>
     </Box>
   );
