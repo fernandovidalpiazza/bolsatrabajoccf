@@ -1,37 +1,49 @@
+import React, { useContext, useState, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
+import Avatar from "@mui/material/Avatar";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import "./Navbar.css";
-import { useContext, useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { menuItems } from "../../../router/navigation";
-import { logout } from "../../../firebaseConfig";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import { AuthContext } from "../../../context/AuthContext";
-import DashboardIcon from '@mui/icons-material/Dashboard';
-
-const drawerWidth = 240;
+import { logout } from "../../../firebaseConfig";
+import { db } from "../../../firebaseConfig";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { menuItems } from "../../../router/navigation";
 
 function Navbar(props) {
   const { logoutContext, user } = useContext(AuthContext);
-  const { window } = props;
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [profilePhoto, setProfilePhoto] = useState("");
   const navigate = useNavigate();
-  const rolAdmin = import.meta.env.VITE_ROL_ADMIN
+  const rolAdmin = import.meta.env.VITE_ROL_ADMIN;
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  useEffect(() => {
+    const fetchProfilePhoto = async () => {
+      if (user?.email) {
+        try {
+          const q = query(collection(db, "cv"), where("Email", "==", user.email));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data?.Foto) {
+              setProfilePhoto(data.Foto);
+            }
+          });
+        } catch (error) {
+          console.error("Error fetching profile photo:", error);
+        }
+      }
+    };
+    fetchProfilePhoto();
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -39,96 +51,52 @@ function Navbar(props) {
     navigate("/login");
   };
 
-  const drawer = (
-    <div>
-      <Toolbar />
-      <List>
-        {menuItems.map(({ id, path, title, Icon }) => (
-          <Link key={id} to={path}>
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  <Icon sx={{ color: "whitesmoke" }} />
-                </ListItemIcon>
-                <ListItemText primary={title} sx={{ color: "whitesmoke" }} />
-              </ListItemButton>
-            </ListItem>
-          </Link>
-        ))}
-        {user.rol === rolAdmin && (
-          <Link to={"/dashboard"}>
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  <DashboardIcon sx={{ color: "whitesmoke" }} />
-                </ListItemIcon>
-                <ListItemText primary={"Dashboard"} sx={{ color: "whitesmoke" }} />
-              </ListItemButton>
-            </ListItem>
-          </Link>
-        )}
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleLogout}>
-            <ListItemIcon>
-              <LogoutIcon sx={{ color: "whitesmoke" }} />
-            </ListItemIcon>
-            <ListItemText primary={"Cerrar sesión"} sx={{ color: "whitesmoke" }} />
-          </ListItemButton>
-        </ListItem>
-      </List>
-    </div>
-  );
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-  const container = window !== undefined ? () => window().document.body : undefined;
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
+          <Box sx={{ flexGrow: 1 }}>
             {menuItems.map(({ id, path, title }) => (
-              <Button key={id} color="inherit" component={Link} to={path}>
-                {title}
-              </Button>
+              <Button key={id} color="inherit" component={Link} to={path}>{title}</Button>
             ))}
             {user.rol === rolAdmin && (
-              <Button color="inherit" component={Link} to={"/dashboard"}>
-                Dashboard
-              </Button>
+              <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
             )}
-            <Button color="inherit" onClick={handleLogout}>
-              Cerrar sesión
-            </Button>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <IconButton onClick={handleAvatarClick} color="inherit">
+              {profilePhoto ? (
+                <Avatar src={profilePhoto} alt="Usuario" />
+              ) : (
+                <Avatar>
+                  <AccountCircleIcon />
+                </Avatar>
+              )}
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              PaperProps={{
+                style: { direction: "ltr" }
+              }}
+            >
+              <MenuItem onClick={handleLogout}><LogoutIcon sx={{ mr: 1 }} /> Cerrar sesión</MenuItem>
+            </Menu>
           </Box>
         </Toolbar>
       </AppBar>
-      <Box component="nav">
-        <Drawer
-          container={container}
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true,
-          }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: "#1976d2" },
-          }}
-        >
-          {drawer}
-        </Drawer>
-      </Box>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <Outlet />

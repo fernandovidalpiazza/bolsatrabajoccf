@@ -1,179 +1,115 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import Swal from "sweetalert2";
 import { db } from "../../../firebaseConfig";
-import { Button, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { collection, query, where, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar } from "@mui/material";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import CargaManual from "./CargaManual";
-import NoAprobado from "./NoAprobado";
-
-
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 600,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 const Dashboard = () => {
+  const [activeCVs, setActiveCVs] = useState([]);
   const [pendingCVs, setPendingCVs] = useState([]);
-  const [selectedCV, setSelectedCV] = useState(null);
-  const [open, setOpen] = useState(false);
-  const [showPending, setShowPending] = useState(false);
-  const [showRejected, setShowRejected] = useState(false); 
+  const [rejectedCVs, setRejectedCVs] = useState([]);
+  const [currentView, setCurrentView] = useState("active");
 
-  const fetchPendingCVs = async () => {
-    const cvCollection = collection(db, "cv");
-    const querySnapshot = await getDocs(cvCollection);
-    const pendingCVData = querySnapshot.docs
-      .filter((doc) => doc.data().estado === "pendiente")
-      .map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-    setPendingCVs(pendingCVData);
+  const fetchCVs = async (status) => {
+    const q = query(collection(db, "cv"), where("estado", "==", status));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   };
 
   useEffect(() => {
-    if (showPending) {
-      fetchPendingCVs();
-    }
-  }, [showPending]);
+    const fetchData = async () => {
+      const activeData = await fetchCVs("aprobado");
+      const pendingData = await fetchCVs("pendiente");
+      const rejectedData = await fetchCVs("no aprobado");
+      setActiveCVs(activeData);
+      setPendingCVs(pendingData);
+      setRejectedCVs(rejectedData);
+    };
+    fetchData();
+  }, []);
 
-  const handleApprove = async () => {
-    if (!selectedCV) return;
-
-    await updateDoc(doc(db, "cv", selectedCV.id), { estado: "aprobado" });
-    setSelectedCV(null);
-    setOpen(false);
-    fetchPendingCVs(); 
-
-    // Enviamos el correo de bienvenida
-    EnvioMail(selectedCV);
+  const handleApprove = async (cv) => {
+    await updateDoc(doc(db, "cv", cv.id), { estado: "aprobado" });
+    setRejectedCVs((prev) => prev.filter((item) => item.id !== cv.id));
+    setActiveCVs((prev) => [...prev, { ...cv, estado: "aprobado" }]);
   };
 
-  const handleDisapprove = async () => {
-    if (!selectedCV) return;
-
-    await updateDoc(doc(db, "cv", selectedCV.id), { estado: "no aprobado" });
-    setSelectedCV(null);
-    setOpen(false);
-    setShowPending(false);
-    setShowRejected(true);
-    fetchPendingCVs();
+  const handleDelete = async (cv) => {
+    Swal.fire({
+      title: '¿Está seguro?',
+      text: 'No podrás revertir esto',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await deleteDoc(doc(db, "cv", cv.id));
+        setActiveCVs((prev) => prev.filter((item) => item.id !== cv.id));
+        Swal.fire('Eliminado', 'El CV ha sido eliminado.', 'success');
+      }
+    });
   };
 
-  const handleOpenModal = (cv) => {
-    setSelectedCV(cv);
-    setOpen(true);
+  const handleDownload = (cv) => {
+    window.open(cv.cv, "_blank");
   };
 
-  const handleCloseModal = () => {
-    setOpen(false);
+  const handleEdit = (cv) => {
+    console.log("Editar CV", cv);
   };
 
   return (
     <div>
-      <Button variant="contained" onClick={() => setShowPending(true)}>
-        Ver Pendientes
-      </Button>
-      <Button variant="contained" onClick={() => { setShowPending(false); setShowRejected(true); }}>
-        Ver No Aprobados
-      </Button>
-      {showPending && (
-        <div>
-          <Modal
-            open={open}
-            onClose={handleCloseModal}
-            aria-labelledby="modal-title"
-            aria-describedby="modal-description"
-          >
-            <Paper sx={style}>
-              <Typography variant="h5" component="h2" id="modal-title" gutterBottom>
-                Detalles del CV Pendiente
-              </Typography>
-              {selectedCV && (
-                <div>
-                  <Typography variant="h6" component="h3" gutterBottom>
-                    Nombre: {selectedCV.Nombre} {selectedCV.Apellido}
-                  </Typography>
-                  <Typography variant="body1" component="p" gutterBottom>
-                    Edad: {selectedCV.Edad}
-                  </Typography>
-                  <Typography variant="body1" component="p" gutterBottom>
-                    Profesión: {selectedCV.Profesion}
-                  </Typography>
-                  <Typography variant="body1" component="p" gutterBottom>
-                    Ciudad: {selectedCV.Ciudad}
-                  </Typography>
-                  <img src={selectedCV.Foto} alt="Foto de Perfil" style={{ maxWidth: "200px", maxHeight: "200px" }} />
-                  <Button
-                    variant="contained"
-                    startIcon={<CloudDownloadIcon />}
-                    href={selectedCV.cv}
-                    target="_blank"
-                    download
-                  >
-                    Descargar CV
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={<ThumbUpIcon />}
-                    onClick={handleApprove}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Aprobar
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    startIcon={<ThumbDownIcon />}
-                    onClick={handleDisapprove}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Desaprobar
-                  </Button>
-                </div>
-              )}
-            </Paper>
-          </Modal>
-          <TableContainer component={Paper} style={{ marginTop: "20px" }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Nombre</TableCell>
-                  <TableCell>Apellido</TableCell>
-                  <TableCell>Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {pendingCVs.map((cv) => (
-                  <TableRow key={cv.id}>
-                    <TableCell>{cv.id}</TableCell>
-                    <TableCell>{cv.Nombre}</TableCell>
-                    <TableCell>{cv.Apellido}</TableCell>
-                    <TableCell>
-                      <Button onClick={() => handleOpenModal(cv)}>Ver Detalles</Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <CargaManual />
-        </div>
-      )}
-     
-      {showRejected && <NoAprobado />}      
-    </div>   
+      <Button variant="contained" onClick={() => setCurrentView("active")}>Ver Activos</Button>
+      <Button variant="contained" onClick={() => setCurrentView("pending")} style={{ marginLeft: "10px" }}>Ver Pendientes</Button>
+      <Button variant="contained" onClick={() => setCurrentView("rejected")} style={{ marginLeft: "10px" }}>Ver No Aprobados</Button>
+      <TableContainer component={Paper} style={{ marginTop: "20px" }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Foto</TableCell>
+              <TableCell>Nombre</TableCell>
+              <TableCell>Apellido</TableCell>
+              <TableCell>Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {(currentView === "active" ? activeCVs : currentView === "pending" ? pendingCVs : rejectedCVs).map((cv) => (
+              <TableRow key={cv.id}>
+                <TableCell>{cv.id}</TableCell>
+                <TableCell><Avatar src={cv.Foto} alt={cv.Nombre} /></TableCell>
+                <TableCell>{cv.Nombre}</TableCell>
+                <TableCell>{cv.Apellido}</TableCell>
+                <TableCell>
+                  {currentView === "active" && (
+                    <>
+                      <Button variant="contained" startIcon={<EditIcon />} onClick={() => handleEdit(cv)}>Editar</Button>
+                      <Button variant="contained" color="error" startIcon={<DeleteForeverIcon />} onClick={() => handleDelete(cv)} style={{ marginLeft: "10px" }}>Eliminar</Button>
+                    </>
+                  )}
+                  {currentView === "rejected" && (
+                    <>
+                      <Button variant="contained" startIcon={<EditIcon />} onClick={() => handleEdit(cv)}>Editar</Button>
+                      <Button variant="contained" color="primary" startIcon={<ThumbUpIcon />} onClick={() => handleApprove(cv)} style={{ marginLeft: "10px" }}>Aprobar</Button>
+                      <Button variant="contained" startIcon={<CloudDownloadIcon />} onClick={() => handleDownload(cv)} style={{ marginLeft: "10px" }}>Descargar</Button>
+                    </>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 };
 
