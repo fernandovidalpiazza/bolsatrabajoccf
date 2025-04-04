@@ -66,10 +66,10 @@ function Navbar(props) {
         <Toolbar>
           <Box sx={{ flexGrow: 1 }}>
             {menuItems.map(({ id, path, title }) => (
-              <Button key={id} color="inherit" component={Link} to={path}>{title}</Button>
+              <Button key={id} color="inherit" component={Link} to={path} sx={{ textTransform: "none" }} translate="no">{title}</Button>
             ))}
             {user.rol === rolAdmin && (
-              <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
+              <Button color="inherit" component={Link} to="/dashboard" sx={{ textTransform: "none" }} translate="no">Dashboard</Button>
             )}
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
