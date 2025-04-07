@@ -11,14 +11,14 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import { AuthContext } from "../../../context/AuthContext";
 import { logout } from "../../../firebaseConfig";
 import { db } from "../../../firebaseConfig";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
+import Swal from "sweetalert2";
 import { menuItems } from "../../../router/navigation";
 
-function Navbar(props) {
+function Navbar() {
   const { logoutContext, user } = useContext(AuthContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const [profilePhoto, setProfilePhoto] = useState("");
@@ -51,6 +51,31 @@ function Navbar(props) {
     navigate("/login");
   };
 
+  const handleDeleteProfile = async () => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará tu perfil permanentemente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'Cancelar',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const q = query(collection(db, "cv"), where("Email", "==", user.email));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (docSnap) => {
+          await deleteDoc(doc(db, "cv", docSnap.id));
+        });
+        Swal.fire('Perfil eliminado', 'Tu perfil ha sido eliminado correctamente.', 'success');
+        handleLogout();
+      } catch (error) {
+        Swal.fire('Error', 'No se pudo eliminar el perfil.', 'error');
+      }
+    }
+  };
+
   const handleAvatarClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -66,21 +91,21 @@ function Navbar(props) {
         <Toolbar>
           <Box sx={{ flexGrow: 1 }}>
             {menuItems.map(({ id, path, title }) => (
-              <Button key={id} color="inherit" component={Link} to={path} sx={{ textTransform: "none" }} translate="no">{title}</Button>
+              <Button key={id} color="inherit" component={Link} to={path} sx={{ textTransform: "none" }} translate="no">
+                {title}
+              </Button>
             ))}
             {user.rol === rolAdmin && (
-              <Button color="inherit" component={Link} to="/dashboard" sx={{ textTransform: "none" }} translate="no">Dashboard</Button>
+              <Button color="inherit" component={Link} to="/dashboard" sx={{ textTransform: "none" }} translate="no">
+                Dashboard
+              </Button>
             )}
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <IconButton onClick={handleAvatarClick} color="inherit">
-              {profilePhoto ? (
-                <Avatar src={profilePhoto} alt="Usuario" />
-              ) : (
-                <Avatar>
-                  <AccountCircleIcon />
-                </Avatar>
-              )}
+              <Avatar src={profilePhoto || undefined} alt="Usuario">
+                {!profilePhoto && <AccountCircleIcon />}
+              </Avatar>
             </IconButton>
             <Menu
               anchorEl={anchorEl}
@@ -88,11 +113,9 @@ function Navbar(props) {
               onClose={handleMenuClose}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
               transformOrigin={{ vertical: "top", horizontal: "right" }}
-              PaperProps={{
-                style: { direction: "ltr" }
-              }}
             >
               <MenuItem onClick={handleLogout}><LogoutIcon sx={{ mr: 1 }} /> Cerrar sesión</MenuItem>
+              <MenuItem onClick={handleDeleteProfile}><LogoutIcon sx={{ mr: 1 }} /> Eliminar perfil</MenuItem>
             </Menu>
           </Box>
         </Toolbar>
