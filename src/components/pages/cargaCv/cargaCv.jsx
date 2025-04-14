@@ -5,6 +5,7 @@ import { addDoc, collection, query, where, getDocs, setDoc, doc } from "firebase
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { RingLoader } from "react-spinners";
+import emailjs from '@emailjs/browser';
 
 const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +37,11 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     "Recepcionista", "cocinero", "Jardinero", "Peluquero", "Desarrollador de software",
     "Psicologo", "Acompañante Terapeutico", "Cuidado de personas mayores",
     "otros oficios"
+  ];
+
+  const citiesList = [
+    "San Nicolás de los Arroyos",
+    "Ramallo"
   ];
 
   useEffect(() => {
@@ -103,18 +109,120 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
     setNewCv({ ...newCv, [e.target.name]: e.target.value });
   };
 
+  // Función para enviar correo electrónico al usuario
+  const sendUserEmail = async (userEmail, userName) => {
+    try {
+      const templateParams = {
+        to_email: userEmail,
+        to_name: userName,
+        message: 'Su registro ha sido realizado con éxito. Su CV está en revisión y pronto estará disponible.',
+        subject: 'Registro exitoso en Bolsa de Trabajo CCF',
+      };
+
+      // Obtener las variables de entorno
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_USER_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+      
+      // Verificar si las variables están definidas
+      if (serviceId && templateId && publicKey) {
+        await emailjs.send(
+          serviceId,
+          templateId,
+          templateParams,
+          publicKey
+        );
+      } else {
+        console.log('Configuración de EmailJS no completada. Saltando envío de correo al usuario.');
+      }
+
+      console.log('Correo enviado al usuario exitosamente');
+    } catch (error) {
+      console.error('Error al enviar correo al usuario:', error);
+    }
+  };
+
+  // Función para enviar correo electrónico al administrador de Ramallo
+  const sendAdminEmail = async (userName, userProfession, userCity) => {
+    try {
+      const templateParams = {
+        to_email: 'ccariramallo@gmail.com', // Correo del administrador de Ramallo
+        to_name: 'Administrador de Ramallo',
+        message: `Hay un nuevo registro para aprobar:\n\nNombre: ${userName} ${newCv.Apellido}\nProfesión: ${userProfession}\nCiudad: ${userCity}\nEmail: ${newCv.Email}`,
+        subject: 'Nuevo registro en Bolsa de Trabajo CCF',
+      };
+
+      // Obtener las variables de entorno
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+      
+      // Verificar si las variables están definidas
+      if (serviceId && templateId && publicKey) {
+        await emailjs.send(
+          serviceId,
+          templateId,
+          templateParams,
+          publicKey
+        );
+      } else {
+        console.log('Configuración de EmailJS no completada. Saltando envío de correo al administrador.');
+      }
+
+      console.log('Correo enviado al administrador exitosamente');
+    } catch (error) {
+      console.error('Error al enviar correo al administrador:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
 
     setIsLoading(true);
     try {
+      let docRef;
+      
       if (currentCv) {
-        const cvDocRef = doc(db, "cv", currentCv.id);
-        await setDoc(cvDocRef, { ...newCv, estado: "pendiente", uid: user.uid }, { merge: true });
+        docRef = doc(db, "cv", currentCv.id);
+        await setDoc(docRef, { ...newCv, estado: "pendiente", uid: user.uid }, { merge: true });
       } else {
-        await addDoc(collection(db, "cv"), { ...newCv, uid: user.uid });
+        const docSnap = await addDoc(collection(db, "cv"), { ...newCv, uid: user.uid });
+        docRef = docSnap;
       }
+
+      try {
+        // Verificar si EmailJS está configurado
+        const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+        const userTemplateId = import.meta.env.VITE_EMAILJS_USER_TEMPLATE_ID;
+        const adminTemplateId = import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE_ID;
+        const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+        
+        // Comprobar si tenemos la configuración completa
+        const emailConfigured = serviceId && 
+                              userTemplateId && userTemplateId !== 'template_id_usuario' && 
+                              adminTemplateId && adminTemplateId !== 'template_id_admin' && 
+                              publicKey && publicKey !== 'public_key';
+        
+        if (emailConfigured) {
+          // Enviar correo al usuario independientemente de la ciudad
+          await sendUserEmail(newCv.Email, newCv.Nombre);
+          
+          // Si la ciudad es Ramallo, enviar correo al administrador
+          if (newCv.Ciudad === "Ramallo") {
+            await sendAdminEmail(newCv.Nombre, newCv.Profesion, newCv.Ciudad);
+          }
+          console.log('Correos enviados exitosamente');
+        } else {
+          console.log('EmailJS no está completamente configurado. No se enviarán correos.');
+          console.log('Para configurar EmailJS, completa los valores en el archivo .env');
+        }
+      } catch (emailError) {
+        console.error("Error al enviar correos:", emailError);
+        // Continuamos con el proceso aunque falle el envío de correos
+      }
+      // Para San Nicolás, por ahora solo enviamos al usuario
+      // Cuando tengas el correo del administrador de San Nicolás, puedes agregar la lógica aquí
 
       await Swal.fire({
         title: "CV Enviado",
@@ -152,6 +260,19 @@ const CargaCv = ({ handleClose, setIsChange, updateDashboard }) => {
         <MenuItem value="" disabled>Seleccione una profesión</MenuItem>
         {professionsList.map((profession, index) => (
           <MenuItem key={index} value={profession}>{profession}</MenuItem>
+        ))}
+      </Select>
+      <Select
+        name="Ciudad"
+        value={newCv.Ciudad || ""}
+        onChange={(e) => setNewCv((prevCv) => ({ ...prevCv, Ciudad: e.target.value }))}
+        displayEmpty
+        fullWidth
+        required
+      >
+        <MenuItem value="" disabled>Seleccione una ciudad</MenuItem>
+        {citiesList.map((city, index) => (
+          <MenuItem key={index} value={city}>{city}</MenuItem>
         ))}
       </Select>
       <TextField type="email" label="Correo Electrónico" name="Email" value={newCv.Email} onChange={handleChange} required fullWidth />
