@@ -152,12 +152,12 @@ function Navbar() {
         <Toolbar>
           <Box sx={{ flexGrow: 1 }}>
             {menuItems.map(({ id, path, title }) => (
-              <Button key={id} color="inherit" component={Link} to={path} sx={{ textTransform: "none" }} translate="no">
+              <Button key={id} color="inherit" component={Link} to={path} sx={{ textTransform: "none", fontSize: { xs: '1rem', md: '1.1rem' }, fontFamily: 'inherit', letterSpacing: 0 }} translate="no">
                 {title}
               </Button>
             ))}
             {user.rol === rolAdmin && (
-              <Button color="inherit" component={Link} to="/dashboard" sx={{ textTransform: "none" }} translate="no">
+              <Button color="inherit" component={Link} to="/dashboard" sx={{ textTransform: "none", fontSize: { xs: '1rem', md: '1.1rem' }, fontFamily: 'inherit', letterSpacing: 0 }} translate="no">
                 Dashboard
               </Button>
             )}
@@ -176,11 +176,28 @@ function Navbar() {
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               transformOrigin={{ vertical: "top", horizontal: "right" }}
+              PaperProps={{
+                sx: {
+                  minWidth: 180,
+                  fontFamily: 'inherit',
+                  fontSize: { xs: '1rem', md: '1.05rem' },
+                  letterSpacing: 0,
+                },
+              }}
+              MenuListProps={{
+                sx: {
+                  padding: 0,
+                },
+              }}
             >
-              <MenuItem onClick={handleLogout}><LogoutIcon sx={{ mr: 1 }} /> Cerrar sesión</MenuItem>
-              <MenuItem onClick={handleDeleteProfile}><LogoutIcon sx={{ mr: 1 }} /> Eliminar perfil</MenuItem>
+              <MenuItem onClick={handleLogout} sx={{ fontFamily: 'inherit', fontSize: { xs: '1rem', md: '1.05rem' }, letterSpacing: 0 }}>
+                <LogoutIcon sx={{ mr: 1 }} /> Cerrar sesión
+              </MenuItem>
+              <MenuItem onClick={handleDeleteProfile} sx={{ fontFamily: 'inherit', fontSize: { xs: '1rem', md: '1.05rem' }, letterSpacing: 0 }}>
+                <LogoutIcon sx={{ mr: 1 }} /> Eliminar perfil
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>

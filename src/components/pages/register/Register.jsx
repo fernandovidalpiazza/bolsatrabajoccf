@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from "@mui/material";
+import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField, Typography, Select, MenuItem } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { signUp, db } from "../../../firebaseConfig";
@@ -21,12 +21,16 @@ const Register = () => {
     initialValues: {
       email: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      ciudad: '',
+      nombre: '',
     },
     validationSchema: Yup.object({
       email: Yup.string().email('Correo electrónico inválido').required('El correo electrónico es obligatorio'),
       password: Yup.string().min(6, 'La contraseña debe tener al menos 6 caracteres').required('La contraseña es obligatoria'),
-      confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir').required('Confirme la contraseña')
+      confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir').required('Confirme la contraseña'),
+      ciudad: Yup.string().oneOf(['San Nicolás', 'Ramallo'], 'Seleccione una ciudad').required('La ciudad es obligatoria'),
+      nombre: Yup.string().min(2, 'Ingrese su nombre').required('El nombre es obligatorio'),
     }),
     onSubmit: async (values) => {
       setLoading(true); // Activar el loader al enviar el formulario
@@ -34,29 +38,49 @@ const Register = () => {
         // Verificar si el usuario ya está registrado
         const docSnap = await getDoc(doc(db, "users", values.email));
         if (docSnap.exists()) {
-          // Mostrar Sweet Alert de error si el usuario ya está registrado
           Swal.fire({
             icon: 'error',
             title: '¡Error!',
             text: '¡Usted ya está registrado!',
           });
-          setIsButtonVisible(true); // Volver a mostrar el botón si hay error
-          return; // Salir de la función onSubmit si el usuario ya está registrado
+          setIsButtonVisible(true);
+          return;
         }
-
         // Si el usuario no está registrado, proceder con el registro
         let res = await signUp(values);
         if (res.user.uid) {
           await setDoc(doc(db, "users", res.user.uid), { rol: "user" });
         }
-        // Mostrar Sweet Alert de éxito
+        // Llamar función backend para enviar correos
+        try {
+          const response = await fetch('https://us-central1-bolsa-de-trabjo.cloudfunctions.net/sendRegistrationEmails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: values.email,
+              nombre: values.nombre,
+              ciudad: values.ciudad
+            })
+          });
+          const result = await response.json();
+          if (!result.success) {
+            throw new Error(result.error || 'Error enviando correo');
+          }
+        } catch (err) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Registro exitoso, pero hubo un problema al enviar el correo',
+            text: 'Verifica tu correo o contacta al administrador.',
+          });
+        }
         Swal.fire({
           icon: 'success',
           title: '¡Registro exitoso!',
           text: 'Usted se ha registrado correctamente.',
-          timer: 2000, // Tiempo de espera en milisegundos
-          timerProgressBar: true, // Mostrar barra de progreso
-          
+          timer: 2000,
+          timerProgressBar: true,
         }).then(() => {
           navigate("/login");
         });
@@ -109,6 +133,18 @@ const Register = () => {
         >
           <Grid item xs={10} md={12}>
             <TextField
+              name="nombre"
+              label="Nombre"
+              fullWidth
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.nombre}
+              error={formik.touched.nombre && Boolean(formik.errors.nombre)}
+              helperText={formik.touched.nombre && formik.errors.nombre}
+            />
+          </Grid>
+          <Grid item xs={10} md={12}>
+            <TextField
               name="email"
               label="Email"
               fullWidth
@@ -118,6 +154,27 @@ const Register = () => {
               error={formik.touched.email && Boolean(formik.errors.email)}
               helperText={formik.touched.email && formik.errors.email}
             />
+          </Grid>
+          <Grid item xs={10} md={12}>
+            <FormControl fullWidth error={formik.touched.ciudad && Boolean(formik.errors.ciudad)}>
+              <InputLabel id="ciudad-label">Ciudad</InputLabel>
+              <Select
+                labelId="ciudad-label"
+                id="ciudad"
+                name="ciudad"
+                value={formik.values.ciudad}
+                label="Ciudad"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              >
+                <MenuItem value=""><em>Seleccione una ciudad</em></MenuItem>
+                <MenuItem value="San Nicolás">San Nicolás</MenuItem>
+                <MenuItem value="Ramallo">Ramallo</MenuItem>
+              </Select>
+              {formik.touched.ciudad && formik.errors.ciudad && (
+                <Typography variant="caption" color="error">{formik.errors.ciudad}</Typography>
+              )}
+            </FormControl>
           </Grid>
           <Grid item xs={10} md={12}>
             <FormControl variant="outlined" fullWidth>
