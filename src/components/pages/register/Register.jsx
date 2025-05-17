@@ -78,8 +78,8 @@ const Register = () => {
         Swal.fire({
           icon: 'success',
           title: '¡Registro exitoso!',
-          text: 'Usted se ha registrado correctamente.',
-          timer: 2000,
+          text: 'Se ha enviado un correo a su casilla. Por favor, verifique su bandeja de entrada y/o spam.',
+          timer: 3500,
           timerProgressBar: true,
         }).then(() => {
           navigate("/login");
