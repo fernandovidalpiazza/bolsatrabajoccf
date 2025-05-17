@@ -53,7 +53,7 @@ const Register = () => {
         }
         // Llamar función backend para enviar correos
         try {
-          const response = await fetch('https://us-central1-bolsa-de-trabjo.cloudfunctions.net/sendRegistrationEmails', {
+          const response = await fetch('https://bolsatrabajoccf.onrender.com/sendRegistrationEmails', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
